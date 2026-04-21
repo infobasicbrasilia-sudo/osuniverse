@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Chrome - Windows 11 Virtual</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f3f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        /* Barra de ferramentas estilo Chrome */
+        .toolbar {
+            background: #ffffff;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #dadce0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover {
+            background: #e8eaed;
+        }
+        .url-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f1f3f4;
+            border-radius: 24px;
+            padding: 6px 12px;
+            gap: 8px;
+        }
+        .url-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            padding: 6px 0;
+        }
+        .url-bar .icon {
+            font-size: 16px;
+            color: #5f6368;
+        }
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        .btn-close:hover {
+            background: #e8eaed;
+            color: #d93025;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #ffffff;
+            margin: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        .content h2 {
+            color: #202124;
+            margin-bottom: 16px;
+        }
+        .content p {
+            color: #5f6368;
+            margin-bottom: 24px;
+        }
+        .open-google-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .open-google-btn:hover {
+            background: #1557b0;
+        }
+        .info {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #9aa0a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="url-bar">
+            <span class="icon">🔒</span>
+            <input type="text" id="urlInput" placeholder="Pesquisar no Google ou digitar URL" onkeypress="handleKeyPress(event)">
+        </div>
+        <button class="btn-close" onclick="window.close()" title="Fechar">✕</button>
+    </div>
+    <div class="content">
+        <h2>🌐 Google Chrome Virtual</h2>
+        <p>O Google bloqueia a exibição dentro de iframes por segurança.<br>Clique no botão abaixo para abrir o Google em uma nova aba real:</p>
+        <button class="open-google-btn" onclick="openGoogle()">Abrir Google.com</button>
+        <div class="info">
+            Você também pode usar a barra de pesquisa acima – os resultados serão abertos em uma nova aba.
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+
+        function openGoogle() {
+            window.open('https://www.google.com', '_blank');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                let query = urlInput.value.trim();
+                if (!query) return;
+                let url;
+                // Se não começar com http:// ou https://, assume pesquisa Google
+                if (!query.startsWith('http://') && !query.startsWith('https://')) {
+                    url = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                } else {
+                    url = query;
+                }
+                window.open(url, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>

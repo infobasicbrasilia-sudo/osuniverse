@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<style>
+body{
+background:black;
+color:#00ff00;
+font-family:Consolas, monospace;
+margin:0;
+padding:10px;
+}
+
+/* CONTAINER ÚNICO (CMD REAL) */
+#cmd-container{
+height:100vh;
+overflow-y:auto;
+}
+
+/* saída */
+#cmd-output{
+white-space:pre-wrap;
+}
+
+/* linha do prompt */
+.cmd-line{
+display:flex;
+align-items:center;
+margin-top:5px;
+}
+
+#cmd-path{
+margin-right:5px;
+white-space:nowrap;
+}
+
+#cmd-input{
+flex:1;
+background:transparent;
+border:none;
+outline:none;
+color:#00ff00;
+font-family:Consolas, monospace;
+font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div id="cmd-container">
+<div id="cmd-output"></div>
+<div class="cmd-line">
+<span id="cmd-path"></span>
+<input id="cmd-input" autofocus>
+</div>
+</div>
+
+<!-- ORDEM CORRETA: primeiro o filesystem, depois o cmd -->
+<script src="/static/js/filesystem.js"></script>
+<script src="/static/js/cmd.js"></script>
+
+</body>
+</html>

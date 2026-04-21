@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/desktop.css">
+    <title>Windows 11 Virtual</title>
+</head>
+<body class="desktop">
+
+<!-- ÍCONES DA ÁREA DE TRABALHO (arrastáveis) -->
+<!-- ÍCONES DA ÁREA DE TRABALHO (arrastáveis e clicáveis) -->
+<div class="icons">
+    <div draggable="true" data-app="explorer" class="icon" onclick="abrirExplorer()" ondragstart="dragStart(event)">
+        <img src="/static/img/folder.png" alt="Documentos" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+        <span>Documentos</span>
+    </div>
+    <div draggable="true" data-app="chrome" class="icon" onclick="abrirChrome()" ondragstart="dragStart(event)">
+        <img src="/static/img/chrome.png" alt="Chrome" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+        <span>Chrome</span>
+    </div>
+    <div draggable="true" data-app="cmd" class="icon" onclick="abrirCMD()" ondragstart="dragStart(event)">
+        <img src="/static/img/cmd.png" alt="CMD" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+        <span>CMD</span>
+    </div>
+    <div draggable="true" data-app="notepad" class="icon" onclick="abrirNotepad()" ondragstart="dragStart(event)">
+        <img src="/static/img/notepad.png" alt="Notepad" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+        <span>Bloco de Notas</span>
+    </div>
+</div>
+<!-- BARRA DE TAREFAS (com área de ícones fixados) -->
+<div class="taskbar">
+    <button onclick="toggleMenu()" class="start">
+        <img src="/static/img/windows.png" alt="Iniciar">
+    </button>
+    <div class="pinned-icons" id="pinnedIcons" ondragover="dragOver(event)" ondrop="dropOnTaskbar(event)">
+        <!-- Ícones fixados aparecerão aqui dinamicamente -->
+    </div>
+</div>
+
+<!-- MENU INICIAR (igual ao anterior, sem alterações) -->
+<div id="startMenu" class="start-menu">
+    <div class="menu-header">
+        <img src="/static/img/user.png" alt="user" class="user-avatar" onerror="this.src='https://via.placeholder.com/32'">
+        <span>Aluno</span>
+    </div>
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Type here to search" autocomplete="off">
+    </div>
+    <div class="menu-grid" id="menuGrid">
+        <div class="pinned-section">
+            <h4>MENU INICIAR</h4>
+            <div class="app-list" id="pinnedList">
+                <div class="app-item" data-name="explorer" onclick="abrirExplorer()">📁 Explorador de Arquivos</div>
+                <div class="app-item" data-name="chrome" onclick="abrirChrome()">🌐 Google Chrome</div>
+                <div class="app-item" data-name="cmd" onclick="abrirCMD()">🖥 Prompt de Comando</div>
+                <div class="app-item" data-name="notepad" onclick="abrirNotepad()">📝 Bloco de Notas</div>
+                <div class="app-item" data-name="edge" onclick="abrirEdge()">🌐 Microsoft Edge</div>
+                <div class="app-item" data-name="word" onclick="abrirWord()">📄 Word</div>
+                <div class="app-item" data-name="excel" onclick="abrirExcel()">📊 Excel</div>
+                <div class="app-item" data-name="powerpoint" onclick="abrirPowerPoint()">📽 PowerPoint</div>
+                <div class="app-item" data-name="mail" onclick="abrirMail()">✉ Mail</div>
+                <div class="app-item" data-name="calendar" onclick="abrirCalendar()">📅 Calendar</div>
+                <div class="app-item" data-name="store" onclick="abrirStore()">🛒 Microsoft Store</div>
+                <div class="app-item" data-name="photos" onclick="abrirPhotos()">🖼 Photos</div>
+                <div class="app-item" data-name="calculator" onclick="abrirCalc()">🧮 Calculator</div>
+                <div class="app-item" data-name="settings" onclick="abrirSettings()">⚙ Settings</div>
+            </div>
+        </div>
+        <div class="recommended-section">
+            <h4>Recommended</h4>
+            <div class="rec-list" id="recList">
+                <div class="rec-item" onclick="abrirGetStarted()">
+                    <span>📘</span>
+                    <div><div>Get Started</div><small>Welcome to Windows</small></div>
+                    <span class="time">2h ago</span>
+                </div>
+                <div class="rec-item" onclick="abrirReport()">
+                    <span>📊</span>
+                    <div><div>Quarterly Payroll Report</div><small>Yesterday at 4:24 PM</small></div>
+                </div>
+                <div class="rec-item" onclick="abrirItinerary()">
+                    <span>✈</span>
+                    <div><div>Travel Itinerary</div><small>17m ago</small></div>
+                </div>
+                <div class="rec-item" onclick="abrirExpense()">
+                    <span>📑</span>
+                    <div><div>Expense Worksheet</div><small>12h ago</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="shutdown-button" onclick="desligar()">
+        <span>🔌</span> Desligar
+    </div>
+</div>
+
+<script src="/static/js/desktop.js"></script>
+</body>
+</html>
