@@ -1,28 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<style>
-body{
-margin:0;
-background:#1e1e1e;
-}
-#editor{
-width:100%;
-height:100vh;
-border:none;
-outline:none;
-padding:10px;
-font-family:Consolas;
-font-size:14px;
-background:#1e1e1e;
-color:#00ff00;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloco de Notas - Windows 11 Virtual</title>
+    <link rel="stylesheet" href="/static/css/notepad.css">
 </head>
 <body>
-<textarea id="editor"></textarea>
-<script src="/static/js/filesystem.js"></script>
-<script src="/static/js/notepad.js"></script>
+    <div class="notepad-container">
+        <!-- Barra de menus -->
+        <div class="menu-bar">
+            <div class="menu-item" id="menuArquivo">Arquivo
+                <div class="dropdown" id="dropdownArquivo">
+                    <div id="novoBtn">Novo</div>
+                    <div id="abrirBtn">Abrir...</div>
+                    <div id="salvarBtn">Salvar</div>
+                    <div id="salvarComoBtn">Salvar como...</div>
+                    <hr>
+                    <div id="sairBtn">Sair</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuEditar">Editar
+                <div class="dropdown" id="dropdownEditar">
+                    <div id="desfazerBtn">Desfazer</div>
+                    <hr>
+                    <div id="recortarBtn">Recortar</div>
+                    <div id="copiarBtn">Copiar</div>
+                    <div id="colarBtn">Colar</div>
+                    <div id="deletarBtn">Deletar</div>
+                    <hr>
+                    <div id="localizarBtn">Localizar...</div>
+                    <div id="localizarProxBtn">Localizar próximo</div>
+                    <div id="substituirBtn">Substituir...</div>
+                    <div id="irParaBtn">Ir para...</div>
+                    <hr>
+                    <div id="selecionarTudoBtn">Selecionar tudo</div>
+                    <div id="horaDataBtn">Hora/Data</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuFormatar">Formatar
+                <div class="dropdown" id="dropdownFormatar">
+                    <div id="quebraLinhaBtn">Quebra automática de linha</div>
+                    <div id="fonteBtn">Fonte...</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuAjuda">Ajuda
+                <div class="dropdown" id="dropdownAjuda">
+                    <div id="sobreBtn">Sobre o Bloco de Notas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de edição -->
+        <textarea id="editor" spellcheck="false"></textarea>
+
+        <!-- Barra de status (opcional) -->
+        <div class="status-bar" id="statusBar">
+            <span id="statusMsg">Pronto</span>
+            <span id="statusCursor">Linha 1, Coluna 1</span>
+        </div>
+    </div>
+
+    <script src="/static/js/filesystem.js"></script>
+    <script src="/static/js/notepad.js"></script>
 </body>
 </html>

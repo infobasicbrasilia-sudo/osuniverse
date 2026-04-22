@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #fff;
+    font-family: 'Segoe UI', 'Consolas', monospace;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.notepad-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+
+.menu-bar {
+    background: #f0f0f0;
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    padding: 2px 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 13px;
+}
+
+.menu-item {
+    padding: 4px 12px;
+    cursor: pointer;
+    position: relative;
+}
+
+.menu-item:hover {
+    background: #cde8f5;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    min-width: 180px;
+    z-index: 100;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.dropdown div {
+    padding: 6px 24px 6px 16px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.dropdown div:hover {
+    background: #cde8f5;
+}
+
+.dropdown hr {
+    margin: 4px 0;
+    border-color: #ddd;
+}
+
+#editor {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    resize: none;
+    background: #fff;
+    color: #000;
+}
+
+.status-bar {
+    background: #f0f0f0;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Ícones de atalho (opcional) */
+#editor {
+    line-height: 1.4;
+}
