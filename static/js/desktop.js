@@ -1,11 +1,25 @@
 console.log("🪟 Desktop carregado com drag & drop e busca");
 
 // ======================== DRAG & DROP ========================
+// ======================== DRAG & DROP CORRIGIDO ========================
 function dragStart(event) {
-    const app = event.target.closest('.icon').getAttribute('data-app');
+    const icon = event.target.closest('.icon');
+    if (!icon) return;
+    const app = icon.getAttribute('data-app');
+    // Armazena o identificador do app
     event.dataTransfer.setData("text/plain", app);
     event.dataTransfer.effectAllowed = "copy";
+    // Remove a imagem fantasma padrão
     event.dataTransfer.setDragImage(new Image(), 0, 0);
+    // Impede que o navegador mova o elemento original
+    event.preventDefault();
+    return false;
+}
+
+function dragEnd(event) {
+    // Garante que nenhum movimento ocorra
+    event.preventDefault();
+    return false;
 }
 
 function dragOver(event) {

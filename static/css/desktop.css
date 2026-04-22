@@ -400,3 +400,8 @@ body {
 .search-results div:hover {
     background: #e9ecef;
 }
+
+.icon {
+    user-select: none;
+    -webkit-user-drag: element;
+}
