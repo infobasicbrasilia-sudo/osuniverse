@@ -1,12 +1,10 @@
-console.log("🪟 Desktop carregado com drag & drop");
+console.log("🪟 Desktop carregado com drag & drop e busca");
 
 // ======================== DRAG & DROP ========================
 function dragStart(event) {
-    // Guarda o tipo do aplicativo (explorer, chrome, cmd, notepad)
     const app = event.target.closest('.icon').getAttribute('data-app');
     event.dataTransfer.setData("text/plain", app);
     event.dataTransfer.effectAllowed = "copy";
-    // Ícone fantasma opcional
     event.dataTransfer.setDragImage(new Image(), 0, 0);
 }
 
@@ -28,11 +26,9 @@ function dropOnTaskbar(event) {
 
 // ======================== GERENCIAR ÍCONES FIXADOS ========================
 function addPinnedIcon(app) {
-    // Verifica se já está fixado
     const pinnedContainer = document.getElementById('pinnedIcons');
     if (pinnedContainer.querySelector(`[data-app="${app}"]`)) return;
 
-    // Mapeia app -> ícone, nome e função de abrir
     const appsMap = {
         explorer: { img: '/static/img/folder.png', nome: 'Documentos', fun: 'abrirExplorer()' },
         chrome:   { img: '/static/img/chrome.png', nome: 'Chrome', fun: 'abrirChrome()' },
@@ -78,11 +74,10 @@ function loadPinnedIcons() {
 // ======================== ABRIR APLICATIVOS ========================
 function abrirExplorer() { window.open("/explorer", "_blank", "width=800,height=600"); }
 function abrirCMD() { window.open("/cmd", "_blank", "width=900,height=600"); }
-// CORREÇÃO: Chrome agora abre diretamente o Google em nova aba
 function abrirChrome() { window.open("https://www.google.com", "_blank"); }
 function abrirNotepad() { window.open("/notepad", "_blank", "width=800,height=600"); }
 
-// Demais funções (Edge, Word, etc.) mantidas iguais às anteriores
+// Demais funções (Edge, Word, etc.)
 function abrirEdge() { alert("Microsoft Edge (simulado)"); }
 function abrirWord() { alert("Word (simulado)"); }
 function abrirExcel() { alert("Excel (simulado)"); }
@@ -140,6 +135,61 @@ function setupSearch() {
     });
 }
 
+// ======================== BUSCA NA TASKBAR ========================
+function setupTaskbarSearch() {
+    const searchInput = document.getElementById("taskbarSearch");
+    const resultsDiv = document.getElementById("searchResults");
+    if (!searchInput || !resultsDiv) return;
+
+    const apps = [
+        { name: "Explorador de Arquivos", action: abrirExplorer },
+        { name: "Chrome", action: abrirChrome },
+        { name: "CMD", action: abrirCMD },
+        { name: "Bloco de Notas", action: abrirNotepad },
+        { name: "Microsoft Edge", action: abrirEdge },
+        { name: "Word", action: abrirWord },
+        { name: "Excel", action: abrirExcel },
+        { name: "PowerPoint", action: abrirPowerPoint },
+        { name: "Mail", action: abrirMail },
+        { name: "Calendar", action: abrirCalendar },
+        { name: "Microsoft Store", action: abrirStore },
+        { name: "Photos", action: abrirPhotos },
+        { name: "Calculator", action: abrirCalc },
+        { name: "Settings", action: abrirSettings }
+    ];
+
+    searchInput.addEventListener("input", function() {
+        const query = searchInput.value.toLowerCase().trim();
+        resultsDiv.innerHTML = "";
+        if (query === "") {
+            resultsDiv.style.display = "none";
+            return;
+        }
+        const filtered = apps.filter(app => app.name.toLowerCase().includes(query));
+        if (filtered.length === 0) {
+            resultsDiv.style.display = "none";
+            return;
+        }
+        filtered.forEach(app => {
+            const item = document.createElement("div");
+            item.textContent = app.name;
+            item.addEventListener("click", () => {
+                app.action();
+                searchInput.value = "";
+                resultsDiv.style.display = "none";
+            });
+            resultsDiv.appendChild(item);
+        });
+        resultsDiv.style.display = "block";
+    });
+
+    document.addEventListener("click", function(e) {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = "none";
+        }
+    });
+}
+
 // ======================== DESLIGAR ========================
 function desligar() {
     if (confirm("Deseja desligar o sistema?")) {
@@ -152,7 +202,7 @@ function desligar() {
 document.addEventListener("DOMContentLoaded", () => {
     loadPinnedIcons();
     setupSearch();
-    // Remove classe drag-over ao sair da taskbar
+    setupTaskbarSearch();
     const taskbar = document.querySelector('.taskbar');
     taskbar.addEventListener('dragleave', () => taskbar.classList.remove('drag-over'));
 });
