@@ -1,25 +1,41 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
-
-<link rel="stylesheet" href="/static/css/style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Arquivos - Windows 11 Virtual</title>
+    <link rel="stylesheet" href="/static/css/explorer.css">
 </head>
-
 <body>
-
-<div class="explorer">
-
-<h3>Explorer</h3>
-
-<div id="explorer"></div>
-
-</div>
-
-<script src="/static/js/filesystem.js"></script>
-<script src="/static/js/explorer.js"></script>
-
+    <div class="explorer-container">
+        <!-- Barra de ferramentas -->
+       <div class="toolbar">
+    <button id="backBtn" title="Voltar">◀</button>
+    <button id="forwardBtn" title="Avançar">▶</button>
+    <button id="upBtn" title="Subir nível">⬆</button>
+    <input type="text" id="addressBar" readonly>
+    <button id="refreshBtn" title="Atualizar">⟳</button>
+    <button id="newFolderBtn" title="Nova pasta">📁+</button>
+    <button id="newFileBtn" title="Novo arquivo texto">📄+</button>
+      </div>
+        <!-- Conteúdo principal: árvore + lista -->
+        <div class="main-content">
+            <div class="tree-pane">
+                <div class="tree-header">📁 Pastas</div>
+                <div id="treeView"></div>
+            </div>
+            <div class="list-pane">
+                <div class="list-header">
+                    <span>Nome</span>
+                    <span>Data modificação</span>
+                    <span>Tipo</span>
+                    <span>Tamanho</span>
+                </div>
+                <div id="fileList"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/filesystem.js"></script>
+    <script src="/static/js/explorer.js"></script>
 </body>
-
 </html>

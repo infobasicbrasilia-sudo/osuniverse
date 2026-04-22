@@ -45,7 +45,6 @@ def chrome():
 
 @app.route("/notepad")
 def notepad():
-    print("🟢 Notepad aberto")
     return render_template("notepad.html")
 
 
