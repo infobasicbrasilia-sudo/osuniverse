@@ -1,34 +1,28 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
-
-<meta charset="UTF-8">
-
-<link rel="stylesheet" href="/static/css/bios.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS / POST - OS UNIVERSE</title>
+    <link rel="stylesheet" href="/static/css/bios.css">
 </head>
-
 <body class="bios">
-
-<div class="bios-text">
-
-American Megatrends BIOS <br>
-Checking RAM... OK <br>
-Loading Boot Device... <br>
-
-</div>
-
-<script>
-
-setTimeout(() => {
-
-window.location.href = "/boot"
-
-}, 3000)
-
-</script>
-
+    <div class="container">
+        <div class="screen">
+            <div class="header">
+                <span>American Megatrends BIOS (UEFI)</span>
+                <span class="copyright">Copyright (C) 2025 OS Universe</span>
+            </div>
+            <div class="post-area" id="postArea">
+                <!-- mensagens aparecerão aqui dinamicamente -->
+            </div>
+            <div class="controls">
+                <button id="pauseBtn" class="pause-btn">⏸️ Pausar</button>
+                <button id="resumeBtn" class="resume-btn" style="display: none;">▶️ Continuar</button>
+                <span class="info">Pressione <kbd>Pause</kbd> para pausar/explicar</span>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/bios.js"></script>
 </body>
-
 </html>

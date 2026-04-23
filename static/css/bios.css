@@ -1,8 +1,106 @@
-body{
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-background:black;
-color:lime;
-font-family:monospace;
-padding:40px;
+body.bios {
+    background: #000;
+    font-family: 'Courier New', 'Consolas', monospace;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
 
+.container {
+    width: 90%;
+    max-width: 900px;
+    background: #0a0a0a;
+    border: 2px solid #0f0;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,255,0,0.2);
+    padding: 20px;
+}
+
+.screen {
+    color: #0f0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+    font-weight: bold;
+}
+
+.copyright {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.post-area {
+    min-height: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    font-family: inherit;
+}
+
+/* Scrollbar estilizada */
+.post-area::-webkit-scrollbar {
+    width: 6px;
+}
+.post-area::-webkit-scrollbar-track {
+    background: #111;
+}
+.post-area::-webkit-scrollbar-thumb {
+    background: #0f0;
+    border-radius: 3px;
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border-top: 1px solid #0f0;
+    padding-top: 12px;
+}
+
+button {
+    background: #111;
+    color: #0f0;
+    border: 1px solid #0f0;
+    padding: 6px 16px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+button:hover {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 8px #0f0;
+}
+
+.info {
+    font-size: 11px;
+    opacity: 0.6;
+    margin-left: auto;
+}
+
+kbd {
+    background: #222;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #ff0;
 }
