@@ -23,13 +23,12 @@
         <span>CMD</span>
     </div>
     <div draggable="true" data-app="notepad" class="icon" onclick="abrirNotepad()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
-        <!-- Corrigido: notepad.png (sem o 1) -->
         <img src="/static/img/notepad.png" alt="Notepad" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>Bloco de Notas</span>
     </div>
 </div>
 
-<!-- BARRA DE TAREFAS COM CAMPO DE BUSCA E RELÓGIO -->
+<!-- BARRA DE TAREFAS COM CAMPO DE BUSCA, ÍCONES DE SISTEMA E RELÓGIO -->
 <div class="taskbar">
     <button onclick="toggleMenu()" class="start">
         <img src="/static/img/windows.png" alt="Iniciar">
@@ -42,17 +41,16 @@
     <div class="pinned-icons" id="pinnedIcons" ondragover="dragOver(event)" ondrop="dropOnTaskbar(event)">
         <!-- Ícones fixados aparecerão aqui -->
     </div>
-    <!-- RELÓGIO -->
-    <!-- ÁREA DE ÍCONES DE SISTEMA + RELÓGIO -->
-<div class="taskbar-right">
-    <div class="system-icons">
-        <img src="/static/img/battery.png" alt="Bateria" title="Bateria: 100%">
-        <img src="/static/img/wifi.png" alt="Wi-Fi" title="Conectado">
-        <img src="/static/img/audio.png" alt="Áudio" title="Áudio: 100%">
-        <img src="/static/img/cloud.png" alt="Nuvem" title="OneDrive - Sincronizado">
+    <!-- Área de ícones de sistema + relógio -->
+    <div class="taskbar-right">
+        <div class="system-icons">
+            <img src="/static/img/battery.png" alt="Bateria" title="Bateria: 100%">
+            <img src="/static/img/wifi.png" alt="Wi-Fi" title="Conectado">
+            <img src="/static/img/audio.png" alt="Áudio" title="Áudio: 100%">
+            <img src="/static/img/cloud.png" alt="Nuvem" title="OneDrive - Sincronizado">
+        </div>
+        <div id="clock" class="clock"></div>
     </div>
-    <div id="clock" class="clock"></div>
-</div>
 </div>
 
 <!-- MENU INICIAR -->
@@ -71,7 +69,7 @@
             <div class="app-list" id="pinnedList">
                 <div class="app-item" data-name="explorer" onclick="abrirExplorer()">📁 Explorador de Arquivos</div>
                 <div class="app-item" data-name="chrome" onclick="abrirChrome()">🌐 Google Chrome</div>
-                <div class="app-item" data-name="cmd" onclick="abrirCMD()">🖥 Prompt de Comando</div>
+                <div class="app-item" data-name="cmd"  onclick="abrirCMD()" ><img src="/static/img/cmd.png"> Prompt de Comando</div>
                 <div class="app-item" data-name="notepad" onclick="abrirNotepad()">📝 Bloco de Notas</div>
                 <div class="app-item" data-name="edge" onclick="abrirEdge()">🌐 Microsoft Edge</div>
                 <div class="app-item" data-name="word" onclick="abrirWord()">📄 Word</div>
