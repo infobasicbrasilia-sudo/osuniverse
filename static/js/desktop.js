@@ -134,23 +134,70 @@ document.addEventListener("click", function(event) {
     }
 });
 
+// ======================== BUSCA NO MENU INICIAR (com keywords) ========================
 function setupSearch() {
     const searchInput = document.getElementById("searchInput");
+    if (!searchInput) return;
+
+    // Lista de aplicativos do menu (com name e keywords)
+    const appsMenu = [
+        { name: "Explorador de Arquivos", keywords: ["explorer", "arquivos", "pasta"], element: null, action: abrirExplorer },
+        { name: "Google Chrome", keywords: ["chrome", "navegador", "google"], element: null, action: abrirChrome },
+        { name: "Prompt de Comando", keywords: ["cmd", "prompt", "terminal", "comando"], element: null, action: abrirCMD },
+        { name: "Bloco de Notas", keywords: ["notepad", "bloco", "notas", "texto"], element: null, action: abrirNotepad },
+        { name: "Microsoft Edge", keywords: ["edge"], element: null, action: abrirEdge },
+        { name: "Word", keywords: ["word"], element: null, action: abrirWord },
+        { name: "Excel", keywords: ["excel"], element: null, action: abrirExcel },
+        { name: "PowerPoint", keywords: ["powerpoint"], element: null, action: abrirPowerPoint },
+        { name: "Mail", keywords: ["mail", "email"], element: null, action: abrirMail },
+        { name: "Calendar", keywords: ["calendar", "calendário"], element: null, action: abrirCalendar },
+        { name: "Microsoft Store", keywords: ["store", "loja"], element: null, action: abrirStore },
+        { name: "Photos", keywords: ["photos", "fotos"], element: null, action: abrirPhotos },
+        { name: "Calculator", keywords: ["calculator", "calculadora"], element: null, action: abrirCalc },
+        { name: "Settings", keywords: ["settings", "configurações"], element: null, action: abrirSettings }
+    ];
+
+    // Mapeia os elementos .app-item
     const appItems = document.querySelectorAll(".app-item");
-    const recItems = document.querySelectorAll(".rec-item");
+    appItems.forEach(item => {
+        const text = item.innerText.trim();
+        const found = appsMenu.find(app => text.includes(app.name) || app.keywords.some(kw => text.toLowerCase().includes(kw)));
+        if (found) {
+            found.element = item;
+            // Garante que o clique original continue funcionando
+            if (!item.getAttribute('data-original-onclick')) {
+                item.setAttribute('data-original-onclick', item.getAttribute('onclick'));
+            }
+        }
+    });
+
+    function matchesQuery(app, query) {
+        const lowerQuery = query.toLowerCase();
+        return app.name.toLowerCase().includes(lowerQuery) ||
+               app.keywords.some(kw => kw.includes(lowerQuery));
+    }
+
     searchInput.addEventListener("input", function(e) {
-        const query = e.target.value.toLowerCase().trim();
+        const query = e.target.value.trim();
+        let anyVisible = false;
         appItems.forEach(item => {
-            const name = item.getAttribute("data-name") || item.innerText.toLowerCase();
-            if (query === "" || name.includes(query)) {
+            const text = item.innerText.trim();
+            const app = appsMenu.find(a => text.includes(a.name) || a.keywords.some(kw => text.toLowerCase().includes(kw)));
+            if (!query) {
                 item.style.display = "block";
+                anyVisible = true;
+            } else if (app && matchesQuery(app, query)) {
+                item.style.display = "block";
+                anyVisible = true;
             } else {
                 item.style.display = "none";
             }
         });
+        // Opcional: tratar a seção "Recommended" também (pode ser feito de forma similar, mas deixamos simples)
+        const recItems = document.querySelectorAll(".rec-item");
         recItems.forEach(item => {
             const text = item.innerText.toLowerCase();
-            if (query === "" || text.includes(query)) {
+            if (!query || text.includes(query.toLowerCase())) {
                 item.style.display = "flex";
             } else {
                 item.style.display = "none";
@@ -160,36 +207,46 @@ function setupSearch() {
 }
 
 // ======================== BUSCA NA TASKBAR ========================
+// ======================== BUSCA NA TASKBAR (melhorada) ========================
 function setupTaskbarSearch() {
     const searchInput = document.getElementById("taskbarSearch");
     const resultsDiv = document.getElementById("searchResults");
     if (!searchInput || !resultsDiv) return;
 
+    // Lista de aplicativos (inclui sinônimos)
     const apps = [
-        { name: "Explorador de Arquivos", action: abrirExplorer },
-        { name: "Chrome", action: abrirChrome },
-        { name: "CMD", action: abrirCMD },
-        { name: "Bloco de Notas", action: abrirNotepad },
-        { name: "Microsoft Edge", action: abrirEdge },
-        { name: "Word", action: abrirWord },
-        { name: "Excel", action: abrirExcel },
-        { name: "PowerPoint", action: abrirPowerPoint },
-        { name: "Mail", action: abrirMail },
-        { name: "Calendar", action: abrirCalendar },
-        { name: "Microsoft Store", action: abrirStore },
-        { name: "Photos", action: abrirPhotos },
-        { name: "Calculator", action: abrirCalc },
-        { name: "Settings", action: abrirSettings }
+        { name: "Explorador de Arquivos", keywords: ["explorer", "arquivos", "pasta"], action: abrirExplorer },
+        { name: "Google Chrome", keywords: ["chrome", "navegador", "google"], action: abrirChrome },
+        { name: "Prompt de Comando", keywords: ["cmd", "prompt", "terminal", "comando"], action: abrirCMD },
+        { name: "Bloco de Notas", keywords: ["notepad", "bloco", "notas", "texto"], action: abrirNotepad },
+        { name: "Microsoft Edge", keywords: ["edge"], action: abrirEdge },
+        { name: "Word", keywords: ["word"], action: abrirWord },
+        { name: "Excel", keywords: ["excel"], action: abrirExcel },
+        { name: "PowerPoint", keywords: ["powerpoint"], action: abrirPowerPoint },
+        { name: "Mail", keywords: ["mail", "email"], action: abrirMail },
+        { name: "Calendar", keywords: ["calendar", "calendário"], action: abrirCalendar },
+        { name: "Microsoft Store", keywords: ["store", "loja"], action: abrirStore },
+        { name: "Photos", keywords: ["photos", "fotos"], action: abrirPhotos },
+        { name: "Calculator", keywords: ["calculator", "calculadora"], action: abrirCalc },
+        { name: "Settings", keywords: ["settings", "configurações"], action: abrirSettings }
     ];
 
+    function filterApps(query) {
+        const lowerQuery = query.toLowerCase();
+        return apps.filter(app => 
+            app.name.toLowerCase().includes(lowerQuery) ||
+            app.keywords.some(keyword => keyword.includes(lowerQuery))
+        );
+    }
+
     searchInput.addEventListener("input", function() {
-        const query = searchInput.value.toLowerCase().trim();
+        const query = searchInput.value.trim();
         resultsDiv.innerHTML = "";
         if (query === "") {
             resultsDiv.style.display = "none";
             return;
         }
-        const filtered = apps.filter(app => app.name.toLowerCase().includes(query));
+        const filtered = filterApps(query);
         if (filtered.length === 0) {
             resultsDiv.style.display = "none";
             return;
