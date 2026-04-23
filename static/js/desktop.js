@@ -18,15 +18,14 @@ function dragStart(event) {
     const app = icon.getAttribute('data-app');
     event.dataTransfer.setData("text/plain", app);
     event.dataTransfer.effectAllowed = "copy";
+    // Remove a imagem fantasma padrão (opcional)
     event.dataTransfer.setDragImage(new Image(), 0, 0);
-    // Impede que o navegador mova o elemento original
-    event.preventDefault();
-    return false;
+    // NÃO chame event.preventDefault() aqui!
 }
 
 function dragEnd(event) {
-    event.preventDefault();
-    return false;
+    // Não precisa fazer nada, mas pode manter vazio
+    // Não chame event.preventDefault()
 }
 
 function dragOver(event) {
