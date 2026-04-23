@@ -1,15 +1,23 @@
-console.log("🪟 Desktop carregado com drag & drop e busca");
+console.log("🪟 Desktop carregado com drag & drop, busca e relógio");
 
-// ======================== DRAG & DROP ========================
+// ======================== RELÓGIO ========================
+function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const dateString = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const clockElement = document.getElementById('clock');
+    if (clockElement) clockElement.textContent = `${timeString} • ${dateString}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
 // ======================== DRAG & DROP CORRIGIDO ========================
 function dragStart(event) {
     const icon = event.target.closest('.icon');
     if (!icon) return;
     const app = icon.getAttribute('data-app');
-    // Armazena o identificador do app
     event.dataTransfer.setData("text/plain", app);
     event.dataTransfer.effectAllowed = "copy";
-    // Remove a imagem fantasma padrão
     event.dataTransfer.setDragImage(new Image(), 0, 0);
     // Impede que o navegador mova o elemento original
     event.preventDefault();
@@ -17,7 +25,6 @@ function dragStart(event) {
 }
 
 function dragEnd(event) {
-    // Garante que nenhum movimento ocorra
     event.preventDefault();
     return false;
 }
@@ -43,6 +50,7 @@ function addPinnedIcon(app) {
     const pinnedContainer = document.getElementById('pinnedIcons');
     if (pinnedContainer.querySelector(`[data-app="${app}"]`)) return;
 
+    // Mapeamento com o nome correto da imagem (notepad.png, sem o 1)
     const appsMap = {
         explorer: { img: '/static/img/folder.png', nome: 'Documentos', fun: 'abrirExplorer()' },
         chrome:   { img: '/static/img/chrome.png', nome: 'Chrome', fun: 'abrirChrome()' },
@@ -57,7 +65,7 @@ function addPinnedIcon(app) {
     iconDiv.setAttribute('data-app', app);
     iconDiv.setAttribute('onclick', info.fun);
     iconDiv.innerHTML = `
-        <img src="${info.img}" alt="${info.nome}" title="${info.nome}">
+        <img src="${info.img}" alt="${info.nome}" title="${info.nome}" onerror="this.src='https://via.placeholder.com/32'">
         <span class="remove-btn" onclick="unpinIcon(this)">✕</span>
     `;
     pinnedContainer.appendChild(iconDiv);
@@ -102,7 +110,7 @@ function abrirStore() { alert("Microsoft Store (simulado)"); }
 function abrirPhotos() { alert("Photos (simulado)"); }
 function abrirCalc() { alert("Calculator (simulado)"); }
 function abrirSettings() { alert("Settings (simulado)"); }
-function abrirGetStarted() { alert("Get Started - Welcome to Windows"); }
+function abrirGetStarted() { alert("Get Started - Welcome to OS Universe"); }
 function abrirReport() { alert("Quarterly Payroll Report"); }
 function abrirItinerary() { alert("Travel Itinerary"); }
 function abrirExpense() { alert("Expense Worksheet"); }
@@ -218,5 +226,5 @@ document.addEventListener("DOMContentLoaded", () => {
     setupSearch();
     setupTaskbarSearch();
     const taskbar = document.querySelector('.taskbar');
-    taskbar.addEventListener('dragleave', () => taskbar.classList.remove('drag-over'));
+    if (taskbar) taskbar.addEventListener('dragleave', () => taskbar.classList.remove('drag-over'));
 });

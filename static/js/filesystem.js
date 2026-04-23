@@ -1,16 +1,21 @@
-console.log("📁 Filesystem carregado - versão corrigida");
+console.log("📁 Filesystem carregado - com estrutura da área de trabalho");
 
 function loadFileSystem() {
     let data = localStorage.getItem("win11fs");
     if (data) {
         return JSON.parse(data);
     }
-    // Estrutura inicial padrão
+    // Estrutura inicial com as quatro pastas na área de trabalho
     return {
         "C:": {
             Users: {
                 USUARIO: {
-                    Desktop: {},
+                    Desktop: {
+                        "Documentos": {},   // atalho/pasta
+                        "Chrome": {},       // atalho/pasta
+                        "CMD": {},          // atalho/pasta
+                        "Bloco de Notas": {} // atalho/pasta
+                    },
                     Documents: {},
                     Downloads: {}
                 }
@@ -59,7 +64,7 @@ window.findFolder = function(dir, name) {
     return null;
 };
 
-// (Opcional) Função auxiliar para garantir que um caminho existe (cria pastas intermediárias)
+// Função auxiliar para garantir que um caminho existe (cria pastas intermediárias)
 window.ensurePath = function(pathArray) {
     let current = window.fileSystem;
     for (let i = 0; i < pathArray.length; i++) {

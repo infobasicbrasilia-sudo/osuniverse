@@ -10,26 +10,26 @@
 
 <!-- ÍCONES DA ÁREA DE TRABALHO (arrastáveis) -->
 <div class="icons">
-    <div draggable="true" data-app="explorer" class="icon" onclick="abrirExplorer()" ondragstart="dragStart(event)">
+    <div draggable="true" data-app="explorer" class="icon" onclick="abrirExplorer()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
         <img src="/static/img/folder.png" alt="Documentos" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>Documentos</span>
     </div>
-    <div draggable="true" data-app="chrome" class="icon" onclick="abrirChrome()" ondragstart="dragStart(event)">
+    <div draggable="true" data-app="chrome" class="icon" onclick="abrirChrome()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
         <img src="/static/img/chrome.png" alt="Chrome" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>Chrome</span>
     </div>
-    <div draggable="true" data-app="cmd" class="icon" onclick="abrirCMD()" ondragstart="dragStart(event)">
+    <div draggable="true" data-app="cmd" class="icon" onclick="abrirCMD()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
         <img src="/static/img/cmd.png" alt="CMD" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>CMD</span>
     </div>
-    <div draggable="true" data-app="notepad" class="icon" onclick="abrirNotepad()" ondragstart="dragStart(event)">
-        <img src="/static/img/notepad1.png" alt="Notepad" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+    <div draggable="true" data-app="notepad" class="icon" onclick="abrirNotepad()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+        <!-- Corrigido: notepad.png (sem o 1) -->
+        <img src="/static/img/notepad.png" alt="Notepad" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>Bloco de Notas</span>
     </div>
 </div>
 
-
-<!-- BARRA DE TAREFAS COM CAMPO DE BUSCA -->
+<!-- BARRA DE TAREFAS COM CAMPO DE BUSCA E RELÓGIO -->
 <div class="taskbar">
     <button onclick="toggleMenu()" class="start">
         <img src="/static/img/saturno.png" alt="Iniciar">
@@ -42,9 +42,13 @@
     <div class="pinned-icons" id="pinnedIcons" ondragover="dragOver(event)" ondrop="dropOnTaskbar(event)">
         <!-- Ícones fixados aparecerão aqui -->
     </div>
+    <!-- RELÓGIO -->
+    <div class="taskbar-right">
+        <div id="clock" class="clock"></div>
+    </div>
 </div>
 
-<!-- MENU INICIAR (mesmo anterior, sem alterações) -->
+<!-- MENU INICIAR -->
 <div id="startMenu" class="start-menu">
     <div class="menu-header">
         <img src="/static/img/user.png" alt="user" class="user-avatar" onerror="this.src='https://via.placeholder.com/32'">

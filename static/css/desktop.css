@@ -405,3 +405,21 @@ body {
     user-select: none;
     -webkit-user-drag: element;
 }
+
+/* Relógio na taskbar */
+.taskbar {
+    justify-content: space-between; /* Distribui os itens */
+}
+.taskbar-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+.clock {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+}
