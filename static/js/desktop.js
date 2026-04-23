@@ -1,12 +1,15 @@
 console.log("🪟 Desktop carregado com drag & drop, busca e relógio");
 
 // ======================== RELÓGIO ========================
+// ======================== RELÓGIO ========================
 function updateClock() {
     const now = new Date();
     const timeString = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    const dateString = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const dateString = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const clockElement = document.getElementById('clock');
-    if (clockElement) clockElement.textContent = `${timeString} • ${dateString}`;
+    if (clockElement) {
+        clockElement.innerHTML = `${timeString}<br><span class="clock-date">${dateString}</span>`;
+    }
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -212,10 +215,20 @@ function setupTaskbarSearch() {
 }
 
 // ======================== DESLIGAR ========================
+// ======================== DESLIGAR ========================
 function desligar() {
     if (confirm("Deseja desligar o sistema?")) {
-        document.body.innerHTML = `<div style="background:#000;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;font-family:'Segoe UI',sans-serif;flex-direction:column;"><h1>Desligando...</h1><p>O computador será desligado em 3 segundos.</p></div>`;
-        setTimeout(() => window.close(), 3000);
+        // Mostra tela preta de desligamento
+        document.body.innerHTML = `
+            <div style="background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Segoe UI', sans-serif; flex-direction: column;">
+                <h1>Desligando...</h1>
+                <p>O sistema será desligado em 2 segundos.</p>
+            </div>
+        `;
+        setTimeout(() => {
+            // Redireciona para a página inicial (index.html - primeira tela de ligar o PC)
+            window.location.href = "/";
+        }, 2000);
     }
 }
 
