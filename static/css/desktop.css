@@ -19,8 +19,9 @@ body {
     backdrop-filter: blur(20px);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* relógio à direita */
     border-top: 1px solid rgba(0,0,0,0.05);
+    padding: 0 16px;
 }
 
 .start {
@@ -37,6 +38,135 @@ body {
 .start img {
     width: 24px;
     height: 24px;
+}
+
+/* Área onde os ícones fixados ficarão */
+.pinned-icons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    flex: 1;
+}
+
+/* Ícone fixado na taskbar */
+.pinned-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+}
+
+.pinned-icon:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+.pinned-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Botão de remover (ao passar o mouse) */
+.pinned-icon .remove-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.pinned-icon:hover .remove-btn {
+    display: flex;
+}
+
+/* Indicador de "drop" na taskbar */
+.taskbar.drag-over {
+    background: rgba(0, 120, 212, 0.3);
+}
+
+/* Campo de busca na taskbar */
+.search-box-taskbar {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+    width: 200px;
+    position: relative;
+}
+
+.search-box-taskbar .search-icon {
+    font-size: 14px;
+    color: #666;
+}
+
+.search-box-taskbar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    width: 100%;
+}
+
+.search-results {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    width: 250px;
+    z-index: 1000;
+    display: none;
+}
+
+.search-results div {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.search-results div:hover {
+    background: #e9ecef;
+}
+
+/* Relógio na taskbar (sem fundo preto, texto preto) */
+.taskbar-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+.clock {
+    background: transparent;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #000;
+    text-align: center;
+    line-height: 1.3;
+    font-family: 'Segoe UI', sans-serif;
+}
+.clock-date {
+    font-size: 10px;
+    opacity: 0.8;
+    display: block;
 }
 
 /* MENU INICIAR - estilo Windows 11 claro */
@@ -220,7 +350,7 @@ body {
     color: #d00;
 }
 
-/* ÍCONES DA ÁREA DE TRABALHO */
+/* ÍCONES DA ÁREA DE TRABALHO (arrastáveis) */
 .icons {
     display: flex;
     flex-wrap: wrap;
@@ -228,26 +358,6 @@ body {
     gap: 16px;
 }
 
-.icon {
-    width: 80px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(4px);
-    padding: 8px;
-    border-radius: 12px;
-    color: #1a1a1a;
-    font-weight: 500;
-}
-
-.icon:hover {
-    transform: scale(1.05);
-    background: rgba(255,255,255,0.9);
-}
-/* Mantenha todos os estilos anteriores e adicione/altere os seguintes */
-
-/* Ícones da área de trabalho */
 .icon {
     width: 80px;
     text-align: center;
@@ -263,6 +373,8 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    user-select: none;
+    -webkit-user-drag: element;
 }
 
 .icon:active {
@@ -278,167 +390,4 @@ body {
 .icon:hover {
     transform: scale(1.05);
     background: rgba(255,255,255,0.9);
-}
-
-/* Barra de tarefas */
-.taskbar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-    border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-/* Área onde os ícones fixados ficarão */
-.pinned-icons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 100%;
-    flex: 1;
-}
-
-/* Ícone fixado na taskbar */
-.pinned-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-    position: relative;
-}
-
-.pinned-icon:hover {
-    background: rgba(0,0,0,0.1);
-}
-
-.pinned-icon img {
-    width: 24px;
-    height: 24px;
-}
-
-/* Botão de remover (ao passar o mouse) */
-.pinned-icon .remove-btn {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    font-size: 10px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.pinned-icon:hover .remove-btn {
-    display: flex;
-}
-
-/* Indicador de "drop" na taskbar */
-.taskbar.drag-over {
-    background: rgba(0, 120, 212, 0.3);
-}
-
-/* Campo de busca na taskbar */
-.search-box-taskbar {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    padding: 4px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: 12px;
-    width: 200px;
-    position: relative;
-}
-
-.search-box-taskbar .search-icon {
-    font-size: 14px;
-    color: #666;
-}
-
-.search-box-taskbar input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 13px;
-    width: 100%;
-}
-
-.search-results {
-    position: absolute;
-    top: 36px;
-    left: 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    width: 250px;
-    z-index: 1000;
-    display: none;
-}
-
-.search-results div {
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.search-results div:hover {
-    background: #e9ecef;
-}
-
-.icon {
-    user-select: none;
-    -webkit-user-drag: element;
-}
-
-/* Relógio na taskbar */
-.taskbar-right {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-}
-.clock {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-    text-align: center;
-    line-height: 1.3;
-    backdrop-filter: blur(4px);
-    font-family: 'Segoe UI', sans-serif;
-}
-.clock-date {
-    font-size: 10px;
-    opacity: 0.8;
-}
-
-.taskbar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* muda de center para space-between */
-    border-top: 1px solid rgba(0,0,0,0.05);
-    padding: 0 16px;
 }
