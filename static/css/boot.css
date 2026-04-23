@@ -1,16 +1,43 @@
-body{
-
-background:black;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-
+/* Tela de boot com fundo GIF */
+body.boot {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: url("/static/img/estrelas.gif") no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-.logo{
+.boot-container {
+    background: rgba(0, 0, 0, 0.6);  /* fundo semi-transparente para contraste */
+    padding: 30px 50px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
 
-width:100px;
+.logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+    animation: pulse 1.5s infinite;
+}
 
+h2 {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Animação suave na logo */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
 }
