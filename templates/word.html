@@ -11,34 +11,49 @@
 </head>
 <body>
 <div class="word-app">
-    <!-- Barra de ferramentas (Ribbon) -->
+    <!-- RIBBON -->
     <div class="ribbon">
         <div class="tabs">
+            <!-- Menu Arquivo -->
             <div class="file-menu tab-btn" id="fileMenuBtn">
                 <i class="fas fa-file-alt"></i> Arquivo
                 <div id="fileDropdown" class="file-dropdown">
+                    <a id="newBtn"><i class="fas fa-file"></i> Novo</a>
+                    <a id="openBtn"><i class="fas fa-folder-open"></i> Abrir...</a>
                     <a id="saveBtn"><i class="fas fa-save"></i> Salvar</a>
                     <div class="submenu">
                         <a id="saveAsBtn"><i class="fas fa-caret-right"></i> Salvar Como</a>
                         <div class="submenu-content">
                             <a id="saveAsDocx">Documento Word (.docx)</a>
                             <a id="saveAsPdf">Documento PDF (.pdf)</a>
-                            <a id="saveAsTxt">Documento de Texto (.txt)</a>
+                            <a id="saveAsTxt">Documento Texto (.txt)</a>
                         </div>
                     </div>
+                    <div class="separator-dropdown"></div>
+                    <a id="printBtn"><i class="fas fa-print"></i> Imprimir</a>
                 </div>
             </div>
             <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> Página Inicial</button>
             <button class="tab-btn" data-tab="insert"><i class="fas fa-plus-circle"></i> Inserir</button>
             <button class="tab-btn" data-tab="headerfooter"><i class="fas fa-pager"></i> Cabeçalho/Rodapé</button>
         </div>
+
         <!-- Aba Home -->
         <div id="home-tools" class="toolbar-container">
             <div class="toolbar">
                 <div class="tool-group">
                     <span class="tool-group-label"><i class="fas fa-font"></i> Fonte</span>
-                    <select id="fontFamily"><option value="Arial">Arial</option><option value="Calibri" selected>Calibri</option><option value="Times New Roman">Times New Roman</option></select>
-                    <select id="fontSize"><option value="1">8pt</option><option value="2">10pt</option><option value="3" selected>12pt</option><option value="4">14pt</option><option value="5">18pt</option><option value="6">24pt</option></select>
+                    <select id="fontFamily">
+                        <option value="Arial">Arial</option>
+                        <option value="Calibri" selected>Calibri</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                    <select id="fontSize">
+                        <option value="1">8pt</option><option value="2">10pt</option>
+                        <option value="3" selected>12pt</option><option value="4">14pt</option>
+                        <option value="5">18pt</option><option value="6">24pt</option>
+                    </select>
                     <button class="tool-btn" id="boldBtn"><i class="fas fa-bold"></i></button>
                     <button class="tool-btn" id="italicBtn"><i class="fas fa-italic"></i></button>
                     <button class="tool-btn" id="underlineBtn"><i class="fas fa-underline"></i></button>
@@ -61,6 +76,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Aba Inserir -->
         <div id="insert-tools" class="toolbar-container hidden">
             <div class="toolbar">
@@ -76,6 +92,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Aba Cabeçalho/Rodapé -->
         <div id="headerfooter-tools" class="toolbar-container hidden">
             <div class="toolbar">
@@ -94,22 +111,15 @@
         <div class="ruler-label">centímetros</div>
     </div>
 
-    <!-- ÁREA DO DOCUMENTO COM RÉGUA VERTICAL E SEÇÕES (header, body, footer) -->
+    <!-- ÁREA DO DOCUMENTO COM RÉGUA VERTICAL -->
     <div class="document-area">
         <div class="vertical-ruler" id="verticalRuler">
             <div class="vertical-scale" id="verticalScale"></div>
         </div>
         <div class="editor-wrapper">
-            <!-- Cabeçalho -->
-            <div id="headerSection" class="section header-section" contenteditable="true" data-placeholder="Clique para adicionar cabeçalho"></div>
-            <!-- Corpo principal (editor) -->
-            <div id="wordEditor" class="editor" contenteditable="true">
-                <p><strong>Bem-vindo ao Simulador Word</strong> — experiência com réguas e recuos.</p>
-                <p>Use a ampulheta (☝️) para definir o recuo da primeira linha. O triângulo inferior ajusta o recuo esquerdo de todo o parágrafo.</p>
-                <p>Altere os recuos e veja o efeito em tempo real no parágrafo atual.</p>
-            </div>
-            <!-- Rodapé -->
-            <div id="footerSection" class="section footer-section" contenteditable="true" data-placeholder="Clique para adicionar rodapé"></div>
+            <div id="globalHeader" class="section header-section" contenteditable="true"></div>
+            <div id="pagesContainer"></div>
+            <div id="globalFooter" class="section footer-section" contenteditable="true"></div>
         </div>
     </div>
 
@@ -118,6 +128,9 @@
         <div class="status-right"></div>
     </div>
 </div>
+
+<!-- Input oculto para abrir arquivos -->
+<input type="file" id="fileOpenInput" style="display:none" accept=".txt,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
 
 <script src="/static/js/word.js"></script>
 </body>

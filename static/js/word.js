@@ -1,17 +1,58 @@
-(function(){
-    // ELEMENTOS
-    const editor = document.getElementById('wordEditor');
-    const headerSec = document.getElementById('headerSection');
-    const footerSec = document.getElementById('footerSection');
+(function() {
+    // ========== ELEMENTOS ==========
+    const pagesContainer = document.getElementById('pagesContainer');
     const rulerHor = document.getElementById('rulerHor');
-
-    // Configurações da régua
+    const globalHeader = document.getElementById('globalHeader');
+    const globalFooter = document.getElementById('globalFooter');
+    
+    // ========== ESTADO ==========
+    let pages = [];
+    let currentPageIndex = 0;
+    let lastFormat = 'docx';
+    
+    // Configurações da régua horizontal
     const maxCm = 20;
     let rulerWidth = 0;
     let pxPerCm = 0;
-    let markers = { firstLine: 0, left: 0, right: 0 };
-
-    // ======================== FUNÇÕES DA RÉGUA ========================
+    
+    // ========== GERENCIAMENTO DE PÁGINAS ==========
+    function createPage(contentHtml = '') {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page';
+        const pageContent = document.createElement('div');
+        pageContent.className = 'page-content';
+        pageContent.contentEditable = 'true';
+        pageContent.innerHTML = contentHtml || '<p><br></p>';
+        pageDiv.appendChild(pageContent);
+        pagesContainer.appendChild(pageDiv);
+        pages.push(pageContent);
+        attachPageEvents(pageContent);
+        return pageContent;
+    }
+    
+    function attachPageEvents(page) {
+        page.addEventListener('click', () => {
+            currentPageIndex = pages.indexOf(page);
+            updateMarkersFromParagraph();
+        });
+        page.addEventListener('keyup', updateMarkersFromParagraph);
+        page.addEventListener('input', updateMarkersFromParagraph);
+    }
+    
+    function initPages() {
+        pagesContainer.innerHTML = '';
+        pages = [];
+        const firstPage = createPage(`
+            <p><strong>Bem-vindo ao Simulador Word</strong> — experiência com réguas e recuos.</p>
+            <p>Use a ampulheta (☝️) para definir o recuo da primeira linha. O triângulo inferior ajusta o recuo esquerdo.</p>
+            <p>Pressione Ctrl+Enter para criar uma nova página.</p>
+            <p><br></p>
+        `);
+        currentPageIndex = 0;
+        updateMarkersFromParagraph();
+    }
+    
+    // ========== RÉGUA HORIZONTAL ==========
     function drawRuler() {
         if (!rulerHor) return;
         rulerWidth = rulerHor.clientWidth;
@@ -49,44 +90,63 @@
         }
         addMarkers();
     }
-
+    
     function addMarkers() {
-        // Remover marcadores antigos se existirem
         const oldMarkers = rulerHor.querySelectorAll('.ruler-marker');
         oldMarkers.forEach(m => m.remove());
-        
-        // Primeira linha (ampulheta)
-        const firstMarker = document.createElement('div');
-        firstMarker.className = 'ruler-marker first-line-marker';
-        firstMarker.setAttribute('data-type', 'first');
-        rulerHor.appendChild(firstMarker);
-        // Recuo esquerdo
-        const leftMarker = document.createElement('div');
-        leftMarker.className = 'ruler-marker left-marker';
-        leftMarker.setAttribute('data-type', 'left');
-        rulerHor.appendChild(leftMarker);
-        // Recuo direito
-        const rightMarker = document.createElement('div');
-        rightMarker.className = 'ruler-marker right-marker';
-        rightMarker.setAttribute('data-type', 'right');
-        rulerHor.appendChild(rightMarker);
-        
-        makeDraggable(firstMarker, 'first');
-        makeDraggable(leftMarker, 'left');
-        makeDraggable(rightMarker, 'right');
-        
+        const markers = {
+            first: createMarker('first-line-marker', 'first'),
+            left: createMarker('left-marker', 'left'),
+            right: createMarker('right-marker', 'right')
+        };
+        rulerHor.append(markers.first, markers.left, markers.right);
+        makeDraggable(markers.first, 'first');
+        makeDraggable(markers.left, 'left');
+        makeDraggable(markers.right, 'right');
         updateMarkersFromParagraph();
     }
     
+    function createMarker(className, type) {
+        const marker = document.createElement('div');
+        marker.className = `ruler-marker ${className}`;
+        marker.setAttribute('data-type', type);
+        return marker;
+    }
+    
+    function getCurrentCm(type) {
+        const p = getParagraphAtCursor();
+        if (!p) return 0;
+        const style = window.getComputedStyle(p);
+        const pxToCm = 1 / 37.8;
+        if (type === 'first') return (parseFloat(style.textIndent) || 0) * pxToCm;
+        if (type === 'left') return (parseFloat(style.marginLeft) || 0) * pxToCm;
+        if (type === 'right') return (parseFloat(style.marginRight) || 0) * pxToCm;
+        return 0;
+    }
+    
+    function applyIndent(type, cmValue) {
+        const p = getParagraphAtCursor();
+        if (!p) return;
+        const cmToPx = cmValue * 37.8;
+        if (type === 'first') p.style.textIndent = cmToPx + 'px';
+        else if (type === 'left') p.style.marginLeft = cmToPx + 'px';
+        else if (type === 'right') p.style.marginRight = cmToPx + 'px';
+    }
+    
+    function updateMarkerPosition(marker, cmValue, type) {
+        if (!marker) return;
+        let percent = (cmValue / maxCm) * 100;
+        if (type === 'right') percent = 100 - percent;
+        marker.style.left = `calc(${percent}% - 8px)`;
+    }
+    
     function makeDraggable(marker, type) {
-        let dragging = false;
-        let startX, startCm;
+        let dragging = false, startX, startCm;
         marker.addEventListener('mousedown', (e) => {
             e.preventDefault();
             dragging = true;
             startX = e.clientX;
-            const currentCm = getCurrentCm(type);
-            startCm = currentCm;
+            startCm = getCurrentCm(type);
             document.body.style.cursor = 'ew-resize';
             const onMouseMove = (moveEvent) => {
                 if (!dragging) return;
@@ -95,7 +155,7 @@
                 let newCm = startCm + deltaCm;
                 if (type === 'right') newCm = startCm - deltaCm;
                 newCm = Math.min(maxCm, Math.max(0, newCm));
-                applyIndentToParagraph(type, newCm);
+                applyIndent(type, newCm);
                 updateMarkerPosition(marker, newCm, type);
             };
             const onMouseUp = () => {
@@ -109,38 +169,14 @@
         });
     }
     
-    function getCurrentCm(type) {
-        const p = getParagraphAtCursor();
-        if (!p) return 0;
-        const pxToCm = 1 / 37.8;
-        const style = window.getComputedStyle(p);
-        if (type === 'first') return (parseFloat(style.textIndent) || 0) * pxToCm;
-        if (type === 'left') return (parseFloat(style.marginLeft) || 0) * pxToCm;
-        if (type === 'right') return (parseFloat(style.marginRight) || 0) * pxToCm;
-        return 0;
-    }
-    
-    function applyIndentToParagraph(type, cmValue) {
-        const p = getParagraphAtCursor();
-        if (!p) return;
-        const cmToPx = cmValue * 37.8;
-        if (type === 'first') p.style.textIndent = cmToPx + 'px';
-        else if (type === 'left') p.style.marginLeft = cmToPx + 'px';
-        else if (type === 'right') p.style.marginRight = cmToPx + 'px';
-    }
-    
-    function updateMarkerPosition(marker, cmValue, type) {
-        let percent = (cmValue / maxCm) * 100;
-        if (type === 'right') percent = 100 - percent;
-        marker.style.left = `calc(${percent}% - 8px)`;
-    }
-    
     function getParagraphAtCursor() {
+        const activePage = pages[currentPageIndex];
+        if (!activePage) return null;
         let sel = window.getSelection();
         if (!sel.rangeCount) return null;
         let node = sel.getRangeAt(0).startContainer;
-        while (node && node !== editor && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
-        while (node && node !== editor && node.tagName !== 'P') node = node.parentNode;
+        while (node && node !== activePage && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
+        while (node && node !== activePage && node.tagName !== 'P') node = node.parentNode;
         return (node && node.tagName === 'P') ? node : null;
     }
     
@@ -160,7 +196,7 @@
         if (rightMarker) updateMarkerPosition(rightMarker, rightCm, 'right');
     }
     
-    // ======================== RÉGUA VERTICAL ========================
+    // ========== RÉGUA VERTICAL ==========
     function buildVerticalScale() {
         const container = document.getElementById('verticalScale');
         if (!container) return;
@@ -181,14 +217,16 @@
         }
     }
     
-    // ======================== COMANDOS DE EDIÇÃO ========================
-    function exec(command, value=null) { 
-        editor.focus(); 
-        document.execCommand(command, false, value); 
-        editor.focus(); 
+    // ========== COMANDOS DE FORMATAÇÃO ==========
+    function exec(command, value = null) {
+        const activePage = pages[currentPageIndex];
+        if (!activePage) return;
+        activePage.focus();
+        document.execCommand(command, false, value);
+        activePage.focus();
+        updateMarkersFromParagraph();
     }
     
-    // Vincular botões
     document.getElementById('boldBtn')?.addEventListener('click', () => exec('bold'));
     document.getElementById('italicBtn')?.addEventListener('click', () => exec('italic'));
     document.getElementById('underlineBtn')?.addEventListener('click', () => exec('underline'));
@@ -213,7 +251,11 @@
         let cols = prompt("Colunas:", "3");
         if(rows && cols) {
             let html = '<table border="1" cellpadding="5" style="border-collapse:collapse">';
-            for(let i=0;i<parseInt(rows);i++){ html += '<tr>'; for(let j=0;j<parseInt(cols);j++) html += '<td>&nbsp;</td>'; html += '</tr>'; }
+            for(let i=0;i<parseInt(rows);i++) {
+                html += '<tr>';
+                for(let j=0;j<parseInt(cols);j++) html += '<td>&nbsp;</td>';
+                html += '</tr>';
+            }
             html += '</table><br>';
             exec('insertHTML', html);
         }
@@ -227,11 +269,35 @@
         if(sym) exec('insertText', sym);
     });
     
-    // ======================== SALVAR ARQUIVOS ========================
-    let lastFormat = 'docx';
+    // ========== QUEBRA DE PÁGINA (Ctrl+Enter) ==========
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            const newPage = createPage('<p><br></p>');
+            currentPageIndex = pages.length - 1;
+            newPage.focus();
+            updateMarkersFromParagraph();
+        }
+    });
+    
+    // ========== EXPORTAÇÃO (Salvar, Salvar Como) ==========
+    function getAllPagesHTML() {
+        let html = '';
+        pages.forEach(page => {
+            html += `<div style="margin-bottom: 2cm;">${page.innerHTML}</div>`;
+        });
+        return html;
+    }
+    
+    function getCompleteDocumentHTML() {
+        const headerHtml = globalHeader.innerHTML.trim() ? `<div style="text-align:center; margin-bottom:1cm;">${globalHeader.innerHTML}</div>` : '';
+        const footerHtml = globalFooter.innerHTML.trim() ? `<div style="text-align:center; margin-top:1cm;">${globalFooter.innerHTML}</div>` : '';
+        return `${headerHtml}${getAllPagesHTML()}${footerHtml}`;
+    }
+    
     async function saveAsDocx() {
         const { Document, Packer, Paragraph, TextRun } = docx;
-        const text = editor.innerText;
+        const text = getCompleteDocumentHTML().replace(/<[^>]*>/g, '\n').replace(/\n+/g, '\n');
         const lines = text.split('\n');
         const paragraphs = [];
         for (let line of lines) {
@@ -242,18 +308,24 @@
         downloadBlob(blob, 'documento.docx');
         lastFormat = 'docx';
     }
+    
     function saveAsPdf() {
-        const element = editor;
+        const element = document.createElement('div');
+        element.innerHTML = getCompleteDocumentHTML();
+        element.style.padding = '20px';
+        element.style.fontFamily = 'Calibri, sans-serif';
         const opt = { margin: 0.5, filename: 'documento.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
         html2pdf().set(opt).from(element).save();
         lastFormat = 'pdf';
     }
+    
     function saveAsTxt() {
-        const content = editor.innerText;
-        const blob = new Blob([content], {type: 'text/plain'});
+        const text = getCompleteDocumentHTML().replace(/<[^>]*>/g, '').replace(/\n+/g, '\n');
+        const blob = new Blob([text], {type: 'text/plain'});
         downloadBlob(blob, 'documento.txt');
         lastFormat = 'txt';
     }
+    
     function downloadBlob(blob, filename) {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -261,17 +333,128 @@
         link.click();
         URL.revokeObjectURL(link.href);
     }
+    
     function save() {
         if (lastFormat === 'docx') saveAsDocx();
         else if (lastFormat === 'pdf') saveAsPdf();
         else saveAsTxt();
     }
-    document.getElementById('saveBtn')?.addEventListener('click', save);
-    document.getElementById('saveAsDocx')?.addEventListener('click', saveAsDocx);
-    document.getElementById('saveAsPdf')?.addEventListener('click', saveAsPdf);
-    document.getElementById('saveAsTxt')?.addEventListener('click', saveAsTxt);
     
-    // ======================== DROPDOWN ARQUIVO ========================
+    // ========== NOVO, ABRIR, IMPRIMIR ==========
+    function newDocument() {
+        if (confirm("Criar um novo documento? Todo o conteúdo não salvo será perdido.")) {
+            pagesContainer.innerHTML = '';
+            pages = [];
+            const newPage = createPage('<p><br></p>');
+            currentPageIndex = 0;
+            globalHeader.innerText = '';
+            globalFooter.innerText = '';
+            applyPlaceholders();
+            updateMarkersFromParagraph();
+        }
+    }
+    
+    const fileInput = document.getElementById('fileOpenInput');
+    function openDocument() {
+        fileInput.click();
+    }
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const fileName = file.name;
+        const fileType = file.type;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            if (fileType === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.doc')) {
+                const formattedContent = content.replace(/\n/g, '<br>');
+                if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
+                    pages.forEach(p => p.remove());
+                    pages = [];
+                    const newPage = createPage(formattedContent);
+                    currentPageIndex = 0;
+                    globalHeader.innerText = '';
+                    globalFooter.innerText = '';
+                    applyPlaceholders();
+                    updateMarkersFromParagraph();
+                }
+            } else {
+                alert('Formato de arquivo não suportado para abertura. Por favor, use .txt ou .doc (texto simples). Arquivos .docx complexos não podem ser abertos neste simulador.');
+            }
+        };
+        reader.readAsText(file, 'UTF-8');
+        fileInput.value = '';
+    });
+    
+    function printDocument() {
+        const printWindow = window.open('', '_blank');
+        const headerHtml = globalHeader.innerHTML.trim() ? `<div style="text-align:center; margin-bottom:1cm;">${globalHeader.innerHTML}</div>` : '';
+        const footerHtml = globalFooter.innerHTML.trim() ? `<div style="text-align:center; margin-top:1cm;">${globalFooter.innerHTML}</div>` : '';
+        const pagesHtml = getAllPagesHTML();
+        const style = `
+            <style>
+                body { font-family: Calibri, Arial, sans-serif; margin: 2cm; line-height: 1.4; }
+                .page { margin-bottom: 1.5cm; page-break-after: always; }
+                .page:last-child { page-break-after: auto; }
+                table { border-collapse: collapse; width: 100%; }
+                td, th { border: 1px solid #aaa; padding: 5px; }
+            </style>
+        `;
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head><title>Imprimir Documento</title>${style}</head>
+            <body>${headerHtml}${pagesHtml}${footerHtml}</body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+    }
+    
+    // ========== PLACEHOLDERS PARA CABEÇALHO/RODAPÉ ==========
+    function applyPlaceholders() {
+        if (globalHeader.innerText.trim() === '') globalHeader.innerText = 'Cabeçalho (clique para adicionar)';
+        if (globalFooter.innerText.trim() === '') globalFooter.innerText = 'Rodapé (clique para adicionar)';
+    }
+    globalHeader.addEventListener('focus', () => {
+        if (globalHeader.innerText === 'Cabeçalho (clique para adicionar)') globalHeader.innerText = '';
+    });
+    globalHeader.addEventListener('blur', () => {
+        if (globalHeader.innerText.trim() === '') globalHeader.innerText = 'Cabeçalho (clique para adicionar)';
+    });
+    globalFooter.addEventListener('focus', () => {
+        if (globalFooter.innerText === 'Rodapé (clique para adicionar)') globalFooter.innerText = '';
+    });
+    globalFooter.addEventListener('blur', () => {
+        if (globalFooter.innerText.trim() === '') globalFooter.innerText = 'Rodapé (clique para adicionar)';
+    });
+    
+    // ========== CABEÇALHO/RODAPÉ (edição) ==========
+    let editingMode = 'body';
+    function setEditableMode(mode) {
+        editingMode = mode;
+        if (mode === 'header') {
+            globalHeader.contentEditable = 'true';
+            globalFooter.contentEditable = 'false';
+            pages.forEach(p => p.contentEditable = 'false');
+            globalHeader.focus();
+        } else if (mode === 'footer') {
+            globalHeader.contentEditable = 'false';
+            globalFooter.contentEditable = 'true';
+            pages.forEach(p => p.contentEditable = 'false');
+            globalFooter.focus();
+        } else {
+            globalHeader.contentEditable = 'false';
+            globalFooter.contentEditable = 'false';
+            pages.forEach(p => p.contentEditable = 'true');
+            pages[currentPageIndex]?.focus();
+        }
+    }
+    document.getElementById('editHeaderBtn')?.addEventListener('click', () => setEditableMode('header'));
+    document.getElementById('editFooterBtn')?.addEventListener('click', () => setEditableMode('footer'));
+    document.getElementById('editBodyBtn')?.addEventListener('click', () => setEditableMode('body'));
+    
+    // ========== DROPDOWN ARQUIVO ==========
     const fileMenuBtn = document.getElementById('fileMenuBtn');
     const fileDropdown = document.getElementById('fileDropdown');
     fileMenuBtn?.addEventListener('click', (e) => {
@@ -282,43 +465,16 @@
         if (fileDropdown) fileDropdown.style.display = 'none';
     });
     
-    // ======================== CABEÇALHO / RODAPÉ ========================
-    let editingMode = 'body'; // 'header', 'footer', 'body'
-    function setEditableMode(mode) {
-        editingMode = mode;
-        if (mode === 'header') {
-            headerSec.contentEditable = 'true';
-            footerSec.contentEditable = 'false';
-            editor.contentEditable = 'false';
-            headerSec.focus();
-        } else if (mode === 'footer') {
-            headerSec.contentEditable = 'false';
-            footerSec.contentEditable = 'true';
-            editor.contentEditable = 'false';
-            footerSec.focus();
-        } else {
-            headerSec.contentEditable = 'false';
-            footerSec.contentEditable = 'false';
-            editor.contentEditable = 'true';
-            editor.focus();
-        }
-    }
-    document.getElementById('editHeaderBtn')?.addEventListener('click', () => setEditableMode('header'));
-    document.getElementById('editFooterBtn')?.addEventListener('click', () => setEditableMode('footer'));
-    document.getElementById('editBodyBtn')?.addEventListener('click', () => setEditableMode('body'));
+    // Vincular eventos do menu
+    document.getElementById('newBtn')?.addEventListener('click', newDocument);
+    document.getElementById('openBtn')?.addEventListener('click', openDocument);
+    document.getElementById('saveBtn')?.addEventListener('click', save);
+    document.getElementById('saveAsDocx')?.addEventListener('click', saveAsDocx);
+    document.getElementById('saveAsPdf')?.addEventListener('click', saveAsPdf);
+    document.getElementById('saveAsTxt')?.addEventListener('click', saveAsTxt);
+    document.getElementById('printBtn')?.addEventListener('click', printDocument);
     
-    // Placeholder para cabeçalho/rodapé
-    function applyPlaceholders() {
-        if (headerSec.innerText.trim() === '') headerSec.innerText = 'Clique para adicionar cabeçalho';
-        if (footerSec.innerText.trim() === '') footerSec.innerText = 'Clique para adicionar rodapé';
-    }
-    headerSec.addEventListener('focus', () => { if (headerSec.innerText === 'Clique para adicionar cabeçalho') headerSec.innerText = ''; });
-    headerSec.addEventListener('blur', () => { if (headerSec.innerText.trim() === '') headerSec.innerText = 'Clique para adicionar cabeçalho'; });
-    footerSec.addEventListener('focus', () => { if (footerSec.innerText === 'Clique para adicionar rodapé') footerSec.innerText = ''; });
-    footerSec.addEventListener('blur', () => { if (footerSec.innerText.trim() === '') footerSec.innerText = 'Clique para adicionar rodapé'; });
-    applyPlaceholders();
-    
-    // ======================== TROCAR ABAS ========================
+    // ========== TROCAR ABAS ==========
     document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.toolbar-container').forEach(cont => cont.classList.add('hidden'));
@@ -331,16 +487,15 @@
         });
     });
     
-    // ======================== INICIALIZAÇÃO ========================
+    // ========== INICIALIZAÇÃO ==========
     window.addEventListener('resize', () => {
         drawRuler();
         updateMarkersFromParagraph();
     });
-    editor.addEventListener('click', updateMarkersFromParagraph);
-    editor.addEventListener('keyup', updateMarkersFromParagraph);
-    editor.addEventListener('input', updateMarkersFromParagraph);
+    initPages();
     buildVerticalScale();
     drawRuler();
+    applyPlaceholders();
     setTimeout(() => {
         rulerWidth = rulerHor.clientWidth;
         drawRuler();
