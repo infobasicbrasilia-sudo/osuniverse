@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Microsoft Word - OS UNIVERSE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/word.css">
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+<div class="word-app">
+    <!-- Barra de ferramentas (Ribbon) -->
+    <div class="ribbon">
+        <div class="tabs">
+            <div class="file-menu tab-btn" id="fileMenuBtn">
+                <i class="fas fa-file-alt"></i> Arquivo
+                <div id="fileDropdown" class="file-dropdown">
+                    <a id="saveBtn"><i class="fas fa-save"></i> Salvar</a>
+                    <div class="submenu">
+                        <a id="saveAsBtn"><i class="fas fa-caret-right"></i> Salvar Como</a>
+                        <div class="submenu-content">
+                            <a id="saveAsDocx">Documento Word (.docx)</a>
+                            <a id="saveAsPdf">Documento PDF (.pdf)</a>
+                            <a id="saveAsTxt">Documento de Texto (.txt)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> Página Inicial</button>
+            <button class="tab-btn" data-tab="insert"><i class="fas fa-plus-circle"></i> Inserir</button>
+            <button class="tab-btn" data-tab="headerfooter"><i class="fas fa-pager"></i> Cabeçalho/Rodapé</button>
+        </div>
+        <!-- Aba Home -->
+        <div id="home-tools" class="toolbar-container">
+            <div class="toolbar">
+                <div class="tool-group">
+                    <span class="tool-group-label"><i class="fas fa-font"></i> Fonte</span>
+                    <select id="fontFamily"><option value="Arial">Arial</option><option value="Calibri" selected>Calibri</option><option value="Times New Roman">Times New Roman</option></select>
+                    <select id="fontSize"><option value="1">8pt</option><option value="2">10pt</option><option value="3" selected>12pt</option><option value="4">14pt</option><option value="5">18pt</option><option value="6">24pt</option></select>
+                    <button class="tool-btn" id="boldBtn"><i class="fas fa-bold"></i></button>
+                    <button class="tool-btn" id="italicBtn"><i class="fas fa-italic"></i></button>
+                    <button class="tool-btn" id="underlineBtn"><i class="fas fa-underline"></i></button>
+                    <input type="color" id="fontColor" value="#000000">
+                </div>
+                <div class="tool-group">
+                    <span class="tool-group-label"><i class="fas fa-align-left"></i> Parágrafo</span>
+                    <button class="tool-btn" id="alignLeftBtn"><i class="fas fa-align-left"></i></button>
+                    <button class="tool-btn" id="alignCenterBtn"><i class="fas fa-align-center"></i></button>
+                    <button class="tool-btn" id="alignRightBtn"><i class="fas fa-align-right"></i></button>
+                    <button class="tool-btn" id="alignJustifyBtn"><i class="fas fa-align-justify"></i></button>
+                    <div class="separator"></div>
+                    <button class="tool-btn" id="bulletListBtn"><i class="fas fa-list-ul"></i></button>
+                    <button class="tool-btn" id="numberedListBtn"><i class="fas fa-list-ol"></i></button>
+                    <button class="tool-btn" id="indentBtn"><i class="fas fa-indent"></i></button>
+                    <button class="tool-btn" id="outdentBtn"><i class="fas fa-outdent"></i></button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" id="clearFormatBtn"><i class="fas fa-undo-alt"></i> Limpar</button>
+                </div>
+            </div>
+        </div>
+        <!-- Aba Inserir -->
+        <div id="insert-tools" class="toolbar-container hidden">
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn" id="insertImageBtn"><i class="fas fa-image"></i> Imagem</button>
+                    <button class="tool-btn" id="insertTableBtn"><i class="fas fa-table"></i> Tabela</button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" id="insertLinkBtn"><i class="fas fa-link"></i> Link</button>
+                </div>
+                <div class="tool-group">
+                    <button class="tool-btn" id="insertSymbolBtn"><i class="fas fa-copyright"></i> Símbolo</button>
+                </div>
+            </div>
+        </div>
+        <!-- Aba Cabeçalho/Rodapé -->
+        <div id="headerfooter-tools" class="toolbar-container hidden">
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn" id="editHeaderBtn"><i class="fas fa-arrow-up"></i> Editar Cabeçalho</button>
+                    <button class="tool-btn" id="editFooterBtn"><i class="fas fa-arrow-down"></i> Editar Rodapé</button>
+                    <button class="tool-btn" id="editBodyBtn"><i class="fas fa-file-alt"></i> Editar Corpo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RÉGUA HORIZONTAL -->
+    <div class="ruler-horizontal-container">
+        <div class="ruler-horizontal" id="rulerHor"></div>
+        <div class="ruler-label">centímetros</div>
+    </div>
+
+    <!-- ÁREA DO DOCUMENTO COM RÉGUA VERTICAL E SEÇÕES (header, body, footer) -->
+    <div class="document-area">
+        <div class="vertical-ruler" id="verticalRuler">
+            <div class="vertical-scale" id="verticalScale"></div>
+        </div>
+        <div class="editor-wrapper">
+            <!-- Cabeçalho -->
+            <div id="headerSection" class="section header-section" contenteditable="true" data-placeholder="Clique para adicionar cabeçalho"></div>
+            <!-- Corpo principal (editor) -->
+            <div id="wordEditor" class="editor" contenteditable="true">
+                <p><strong>Bem-vindo ao Simulador Word</strong> — experiência com réguas e recuos.</p>
+                <p>Use a ampulheta (☝️) para definir o recuo da primeira linha. O triângulo inferior ajusta o recuo esquerdo de todo o parágrafo.</p>
+                <p>Altere os recuos e veja o efeito em tempo real no parágrafo atual.</p>
+            </div>
+            <!-- Rodapé -->
+            <div id="footerSection" class="section footer-section" contenteditable="true" data-placeholder="Clique para adicionar rodapé"></div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-left"><span><i class="far fa-file-alt"></i> OS UNIVERSE Word</span></div>
+        <div class="status-right"></div>
+    </div>
+</div>
+
+<script src="/static/js/word.js"></script>
+</body>
+</html>
