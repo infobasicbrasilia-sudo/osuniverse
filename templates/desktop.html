@@ -26,6 +26,10 @@
         <img src="/static/img/notepad.png" alt="Notepad" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
         <span>Bloco de Notas</span>
     </div>
+    <div draggable="true" data-app="word" class="icon" onclick="abrirWord()" ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+    <img src="/static/img/word.png" alt="Word" class="icon-img" onerror="this.src='https://via.placeholder.com/32'">
+    <span>Doc Word</span>
+</div>
 </div>
 
 <!-- BARRA DE TAREFAS COM CAMPO DE BUSCA, ÍCONES DE SISTEMA E RELÓGIO -->
@@ -67,12 +71,12 @@
         <div class="pinned-section">
             <h4>Pinned</h4>
             <div class="app-list" id="pinnedList">
-                <div class="app-item" data-name="explorer" onclick="abrirExplorer()">📁 Explorador de Arquivos</div>
-                <div class="app-item" data-name="chrome" onclick="abrirChrome()">🌐 Google Chrome</div>
+                <div class="app-item" data-name="explorer" onclick="abrirExplorer()"><img src="/static/img/folder.png">Explorador de Arquivos</div>
+                <div class="app-item" data-name="chrome" onclick="abrirChrome()"><img src="/static/img/chrome.png"> Google Chrome</div>
                 <div class="app-item" data-name="cmd"  onclick="abrirCMD()" ><img src="/static/img/cmd.png"> Prompt de Comando</div>
                 <div class="app-item" data-name="notepad" onclick="abrirNotepad()">📝 Bloco de Notas</div>
+                <div class="app-item" data-name="word" onclick="abrirWord()"><img src="/static/img/docWord.png"> Doc Word</div>
                 <div class="app-item" data-name="edge" onclick="abrirEdge()">🌐 Microsoft Edge</div>
-                <div class="app-item" data-name="word" onclick="abrirWord()">📄 Word</div>
                 <div class="app-item" data-name="excel" onclick="abrirExcel()">📊 Excel</div>
                 <div class="app-item" data-name="powerpoint" onclick="abrirPowerPoint()">📽 PowerPoint</div>
                 <div class="app-item" data-name="mail" onclick="abrirMail()">✉ Mail</div>

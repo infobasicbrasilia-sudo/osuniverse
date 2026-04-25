@@ -311,3 +311,15 @@ select, input[type="color"] {
     display: flex;
     justify-content: space-between;
 }
+/* Estilos para conteúdo importado de .docx */
+.word-import p, .word-import h1, .word-import h2, .word-import h3 {
+    margin: 0.5rem 0;
+}
+.word-import table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.word-import td, .word-import th {
+    border: 1px solid #aaa;
+    padding: 4px;
+}

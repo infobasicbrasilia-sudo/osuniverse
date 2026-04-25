@@ -288,6 +288,9 @@ function desligar() {
         }, 2000);
     }
 }
+function abrirWord() {
+    window.open("/word", "_blank", "width=1200,height=800");
+}
 
 // ======================== INICIALIZAÇÃO ========================
 document.addEventListener("DOMContentLoaded", () => {

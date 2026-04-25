@@ -3,7 +3,7 @@ body.boot {
     margin: 0;
     padding: 0;
     height: 100vh;
-    background: url("/static/img/estrelas.gif") no-repeat center center fixed;
+    background: url("/static/img/sideral.gif") no-repeat center center fixed;
     background-size: cover;
     font-family: 'Segoe UI', 'Segoe UI Variable', system-ui, sans-serif;
     display: flex;

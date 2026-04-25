@@ -358,33 +358,54 @@
     function openDocument() {
         fileInput.click();
     }
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const fileName = file.name;
-        const fileType = file.type;
+   fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const fileName = file.name;
+    const fileType = file.type;
+
+    if (fileType === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.doc')) {
+        // Leitura de texto simples (já existente)
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target.result;
-            if (fileType === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.doc')) {
-                const formattedContent = content.replace(/\n/g, '<br>');
-                if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
-                    pages.forEach(p => p.remove());
-                    pages = [];
-                    const newPage = createPage(formattedContent);
-                    currentPageIndex = 0;
-                    globalHeader.innerText = '';
-                    globalFooter.innerText = '';
-                    applyPlaceholders();
-                    updateMarkersFromParagraph();
-                }
-            } else {
-                alert('Formato de arquivo não suportado para abertura. Por favor, use .txt ou .doc (texto simples). Arquivos .docx complexos não podem ser abertos neste simulador.');
+            const formattedContent = content.replace(/\n/g, '<br>');
+            if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
+                // Substitui páginas
+                pages.forEach(p => p.remove());
+                pages = [];
+                const newPage = createPage(formattedContent);
+                currentPageIndex = 0;
+                applyPlaceholders();
+                updateMarkersFromParagraph();
             }
         };
         reader.readAsText(file, 'UTF-8');
-        fileInput.value = '';
-    });
+    } 
+    else if (fileName.endsWith('.docx')) {
+        // Usa Mammoth para extrair HTML do .docx
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+            const htmlContent = result.value; // HTML extraído (preserva formatação)
+            if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
+                pages.forEach(p => p.remove());
+                pages = [];
+                const newPage = createPage(htmlContent);
+                currentPageIndex = 0;
+                applyPlaceholders();
+                updateMarkersFromParagraph();
+            }
+        } catch (error) {
+            console.error('Erro ao ler .docx:', error);
+            alert('Não foi possível abrir este arquivo .docx. Pode estar corrompido ou usar recursos muito avançados.');
+        }
+    } 
+    else {
+        alert('Formato de arquivo não suportado. Use .txt, .doc ou .docx (conversão básica).');
+    }
+    fileInput.value = ''; // limpa para reabrir o mesmo arquivo
+});
     
     function printDocument() {
         const printWindow = window.open('', '_blank');

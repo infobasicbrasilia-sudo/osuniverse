@@ -39,6 +39,10 @@ def cmd():
     print("🟢 CMD aberto")
     return render_template("cmd.html")
 
+@app.route("/word")
+def word_simulator():
+    return render_template("word.html")
+
 @app.route("/chrome")
 def chrome():
     return render_template("chrome.html")
