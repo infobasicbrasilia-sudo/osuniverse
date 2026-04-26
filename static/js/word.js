@@ -10,10 +10,56 @@
     let currentPageIndex = 0;
     let lastFormat = 'docx';
     
-    // Configurações da régua horizontal
     const maxCm = 20;
     let rulerWidth = 0;
     let pxPerCm = 0;
+    
+    // ========== HELPERS: GARANTIR PARÁGRAFOS ==========
+    function ensureParagraphs(html) {
+        if (!html) return '<p><br></p>';
+        // Se não houver tag de bloco, envolve em <p>
+        if (!/<(p|div|h[1-6]|blockquote|pre)>/i.test(html)) {
+            let text = html.trim();
+            if (text === '') return '<p><br></p>';
+            let paragraphs = text.split(/\n\s*\n/);
+            let result = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+            return result;
+        }
+        return html;
+    }
+    
+    // ========== NORMALIZAR TEXTO ==========
+    function normalizeText(html) {
+        let tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        let removals = tmp.querySelectorAll('script, style, meta, link, iframe, object, embed');
+        removals.forEach(el => el.remove());
+        let allElements = tmp.querySelectorAll('*');
+        allElements.forEach(el => {
+            const attrs = el.attributes;
+            for (let i = attrs.length-1; i >= 0; i--) {
+                const attrName = attrs[i].name;
+                if (attrName.startsWith('on') || attrName === 'style' || attrName === 'class' || attrName === 'id') {
+                    el.removeAttribute(attrName);
+                }
+            }
+        });
+        let cleanHtml = tmp.innerHTML;
+        cleanHtml = cleanHtml.replace(/<div[^>]*>/gi, '<p>').replace(/<\/div>/gi, '</p>');
+        cleanHtml = cleanHtml.replace(/<span[^>]*>/gi, '<p>').replace(/<\/span>/gi, '</p>');
+        cleanHtml = cleanHtml.replace(/<p>\s*<\/p>/gi, '<p><br></p>');
+        return ensureParagraphs(cleanHtml);
+    }
+    
+    function applyNormalizeToCurrentPage() {
+        const activePage = pages[currentPageIndex];
+        if (!activePage) return;
+        const originalHtml = activePage.innerHTML;
+        const normalizedHtml = normalizeText(originalHtml);
+        activePage.innerHTML = normalizedHtml;
+        updateMarkersFromParagraph();
+        alert('Texto normalizado: formatação externa e macros removidos.');
+    }
     
     // ========== GERENCIAMENTO DE PÁGINAS ==========
     function createPage(contentHtml = '') {
@@ -22,7 +68,7 @@
         const pageContent = document.createElement('div');
         pageContent.className = 'page-content';
         pageContent.contentEditable = 'true';
-        pageContent.innerHTML = contentHtml || '<p><br></p>';
+        pageContent.innerHTML = ensureParagraphs(contentHtml);
         pageDiv.appendChild(pageContent);
         pagesContainer.appendChild(pageDiv);
         pages.push(pageContent);
@@ -37,6 +83,14 @@
         });
         page.addEventListener('keyup', updateMarkersFromParagraph);
         page.addEventListener('input', updateMarkersFromParagraph);
+        // Garantir que ao colar o texto seja convertido em parágrafos
+        page.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            const formatted = ensureParagraphs(text.replace(/\n/g, '<br>'));
+            document.execCommand('insertHTML', false, formatted);
+            updateMarkersFromParagraph();
+        });
     }
     
     function initPages() {
@@ -113,6 +167,22 @@
         return marker;
     }
     
+    // Função melhorada para obter o parágrafo atual (mesmo se dentro de strong/span)
+    function getParagraphAtCursor() {
+        const activePage = pages[currentPageIndex];
+        if (!activePage) return null;
+        let sel = window.getSelection();
+        if (!sel.rangeCount) return null;
+        let node = sel.getRangeAt(0).startContainer;
+        while (node && node !== activePage && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
+        // Sobe até encontrar um elemento de bloco (P, DIV, etc)
+        while (node && node !== activePage && !(node.tagName === 'P' || node.tagName === 'DIV' || node.tagName === 'H1' || node.tagName === 'H2')) {
+            node = node.parentNode;
+        }
+        if (!node || node === activePage) return null;
+        return node;
+    }
+    
     function getCurrentCm(type) {
         const p = getParagraphAtCursor();
         if (!p) return 0;
@@ -131,6 +201,8 @@
         if (type === 'first') p.style.textIndent = cmToPx + 'px';
         else if (type === 'left') p.style.marginLeft = cmToPx + 'px';
         else if (type === 'right') p.style.marginRight = cmToPx + 'px';
+        // Pequeno delay para garantir renderização
+        setTimeout(() => updateMarkersFromParagraph(), 10);
     }
     
     function updateMarkerPosition(marker, cmValue, type) {
@@ -167,17 +239,6 @@
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
         });
-    }
-    
-    function getParagraphAtCursor() {
-        const activePage = pages[currentPageIndex];
-        if (!activePage) return null;
-        let sel = window.getSelection();
-        if (!sel.rangeCount) return null;
-        let node = sel.getRangeAt(0).startContainer;
-        while (node && node !== activePage && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
-        while (node && node !== activePage && node.tagName !== 'P') node = node.parentNode;
-        return (node && node.tagName === 'P') ? node : null;
     }
     
     function updateMarkersFromParagraph() {
@@ -227,6 +288,17 @@
         updateMarkersFromParagraph();
     }
     
+    // Comandos de desfazer/refazer
+    function undo() {
+        document.execCommand('undo');
+        updateMarkersFromParagraph();
+    }
+    function redo() {
+        document.execCommand('redo');
+        updateMarkersFromParagraph();
+    }
+    
+    // Vincular botões da aba Página Inicial
     document.getElementById('boldBtn')?.addEventListener('click', () => exec('bold'));
     document.getElementById('italicBtn')?.addEventListener('click', () => exec('italic'));
     document.getElementById('underlineBtn')?.addEventListener('click', () => exec('underline'));
@@ -241,7 +313,14 @@
     document.getElementById('numberedListBtn')?.addEventListener('click', () => exec('insertOrderedList'));
     document.getElementById('indentBtn')?.addEventListener('click', () => exec('indent'));
     document.getElementById('outdentBtn')?.addEventListener('click', () => exec('outdent'));
+    
+    // Botões da aba Editar
+    document.getElementById('undoBtn')?.addEventListener('click', undo);
+    document.getElementById('redoBtn')?.addEventListener('click', redo);
     document.getElementById('clearFormatBtn')?.addEventListener('click', () => exec('removeFormat'));
+    document.getElementById('normalizeBtn')?.addEventListener('click', applyNormalizeToCurrentPage);
+    
+    // Aba Inserir
     document.getElementById('insertImageBtn')?.addEventListener('click', () => {
         let url = prompt("URL da imagem:");
         if(url) exec('insertImage', url);
@@ -269,7 +348,7 @@
         if(sym) exec('insertText', sym);
     });
     
-    // ========== QUEBRA DE PÁGINA (Ctrl+Enter) ==========
+    // Quebra de página
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();
@@ -280,7 +359,7 @@
         }
     });
     
-    // ========== EXPORTAÇÃO (Salvar, Salvar Como) ==========
+    // ========== EXPORTAÇÃO ==========
     function getAllPagesHTML() {
         let html = '';
         pages.forEach(page => {
@@ -358,54 +437,54 @@
     function openDocument() {
         fileInput.click();
     }
-   fileInput.addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    const fileName = file.name;
-    const fileType = file.type;
-
-    if (fileType === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.doc')) {
-        // Leitura de texto simples (já existente)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-            const formattedContent = content.replace(/\n/g, '<br>');
-            if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
-                // Substitui páginas
-                pages.forEach(p => p.remove());
-                pages = [];
-                const newPage = createPage(formattedContent);
-                currentPageIndex = 0;
-                applyPlaceholders();
-                updateMarkersFromParagraph();
+    
+    fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const fileName = file.name;
+        const fileType = file.type;
+        
+        if (fileType === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.doc')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                let content = e.target.result;
+                content = content.replace(/\n/g, '<br>');
+                content = ensureParagraphs(content);
+                if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
+                    pages.forEach(p => p.remove());
+                    pages = [];
+                    const newPage = createPage(content);
+                    currentPageIndex = 0;
+                    applyPlaceholders();
+                    updateMarkersFromParagraph();
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+        } 
+        else if (fileName.endsWith('.docx')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+                let htmlContent = result.value;
+                htmlContent = ensureParagraphs(htmlContent);
+                if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
+                    pages.forEach(p => p.remove());
+                    pages = [];
+                    const newPage = createPage(htmlContent);
+                    currentPageIndex = 0;
+                    applyPlaceholders();
+                    updateMarkersFromParagraph();
+                }
+            } catch (error) {
+                console.error('Erro ao ler .docx:', error);
+                alert('Não foi possível abrir este arquivo .docx. Pode estar corrompido ou usar recursos muito avançados.');
             }
-        };
-        reader.readAsText(file, 'UTF-8');
-    } 
-    else if (fileName.endsWith('.docx')) {
-        // Usa Mammoth para extrair HTML do .docx
-        try {
-            const arrayBuffer = await file.arrayBuffer();
-            const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
-            const htmlContent = result.value; // HTML extraído (preserva formatação)
-            if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
-                pages.forEach(p => p.remove());
-                pages = [];
-                const newPage = createPage(htmlContent);
-                currentPageIndex = 0;
-                applyPlaceholders();
-                updateMarkersFromParagraph();
-            }
-        } catch (error) {
-            console.error('Erro ao ler .docx:', error);
-            alert('Não foi possível abrir este arquivo .docx. Pode estar corrompido ou usar recursos muito avançados.');
+        } 
+        else {
+            alert('Formato de arquivo não suportado. Use .txt, .doc ou .docx (conversão básica).');
         }
-    } 
-    else {
-        alert('Formato de arquivo não suportado. Use .txt, .doc ou .docx (conversão básica).');
-    }
-    fileInput.value = ''; // limpa para reabrir o mesmo arquivo
-});
+        fileInput.value = '';
+    });
     
     function printDocument() {
         const printWindow = window.open('', '_blank');
@@ -432,7 +511,7 @@
         printWindow.print();
     }
     
-    // ========== PLACEHOLDERS PARA CABEÇALHO/RODAPÉ ==========
+    // ========== PLACEHOLDERS ==========
     function applyPlaceholders() {
         if (globalHeader.innerText.trim() === '') globalHeader.innerText = 'Cabeçalho (clique para adicionar)';
         if (globalFooter.innerText.trim() === '') globalFooter.innerText = 'Rodapé (clique para adicionar)';
@@ -450,7 +529,7 @@
         if (globalFooter.innerText.trim() === '') globalFooter.innerText = 'Rodapé (clique para adicionar)';
     });
     
-    // ========== CABEÇALHO/RODAPÉ (edição) ==========
+    // ========== EDIÇÃO CABEÇALHO/RODAPÉ ==========
     let editingMode = 'body';
     function setEditableMode(mode) {
         editingMode = mode;
@@ -486,7 +565,6 @@
         if (fileDropdown) fileDropdown.style.display = 'none';
     });
     
-    // Vincular eventos do menu
     document.getElementById('newBtn')?.addEventListener('click', newDocument);
     document.getElementById('openBtn')?.addEventListener('click', openDocument);
     document.getElementById('saveBtn')?.addEventListener('click', save);
@@ -501,6 +579,7 @@
             document.querySelectorAll('.toolbar-container').forEach(cont => cont.classList.add('hidden'));
             const tabId = btn.dataset.tab;
             if (tabId === 'home') document.getElementById('home-tools').classList.remove('hidden');
+            else if (tabId === 'edit') document.getElementById('edit-tools').classList.remove('hidden');
             else if (tabId === 'insert') document.getElementById('insert-tools').classList.remove('hidden');
             else if (tabId === 'headerfooter') document.getElementById('headerfooter-tools').classList.remove('hidden');
             document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));

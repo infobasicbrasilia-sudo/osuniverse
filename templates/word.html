@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Doc Word - OS UNIVERSE</title>
+    <title>Microsoft Word - OS UNIVERSE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/static/css/word.css">
     <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
@@ -14,6 +14,7 @@
 <div class="word-app">
     <div class="ribbon">
         <div class="tabs">
+            <!-- Menu Arquivo -->
             <div class="file-menu tab-btn" id="fileMenuBtn">
                 <i class="fas fa-file-alt"></i> Arquivo
                 <div id="fileDropdown" class="file-dropdown">
@@ -33,11 +34,12 @@
                 </div>
             </div>
             <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i> Página Inicial</button>
+            <button class="tab-btn" data-tab="edit"><i class="fas fa-edit"></i> Editar</button>
             <button class="tab-btn" data-tab="insert"><i class="fas fa-plus-circle"></i> Inserir</button>
             <button class="tab-btn" data-tab="headerfooter"><i class="fas fa-pager"></i> Cabeçalho/Rodapé</button>
         </div>
 
-        <!-- Aba Home -->
+        <!-- ABA Página Inicial (formatação) -->
         <div id="home-tools" class="toolbar-container">
             <div class="toolbar">
                 <div class="tool-group">
@@ -70,15 +72,24 @@
                     <button class="tool-btn" id="indentBtn"><i class="fas fa-indent"></i></button>
                     <button class="tool-btn" id="outdentBtn"><i class="fas fa-outdent"></i></button>
                 </div>
+            </div>
+        </div>
+
+        <!-- ABA EDITAR (desfazer, refazer, limpar, normalizar) -->
+        <div id="edit-tools" class="toolbar-container hidden">
+            <div class="toolbar">
                 <div class="tool-group">
-                    <span class="tool-group-label"><i class="fas fa-eraser"></i> Limpeza</span>
-                    <button class="tool-btn" id="clearFormatBtn" title="Remover formatação direta"><i class="fas fa-undo-alt"></i> Limpar</button>
-                    <button class="tool-btn" id="normalizeBtn" title="Normalizar texto: remove formatação, macros, estilos externos"><i class="fas fa-broom"></i> Normalizar</button>
+                    <span class="tool-group-label"><i class="fas fa-undo-alt"></i> Ações</span>
+                    <button class="tool-btn" id="undoBtn" title="Desfazer (Ctrl+Z)"><i class="fas fa-undo"></i> Desfazer</button>
+                    <button class="tool-btn" id="redoBtn" title="Refazer (Ctrl+Y)"><i class="fas fa-redo"></i> Refazer</button>
+                    <div class="separator"></div>
+                    <button class="tool-btn" id="clearFormatBtn" title="Remover formatação direta"><i class="fas fa-eraser"></i> Limpar</button>
+                    <button class="tool-btn" id="normalizeBtn" title="Normalizar texto: remove macros, estilos externos"><i class="fas fa-broom"></i> Normalizar</button>
                 </div>
             </div>
         </div>
 
-        <!-- Aba Inserir -->
+        <!-- ABA Inserir -->
         <div id="insert-tools" class="toolbar-container hidden">
             <div class="toolbar">
                 <div class="tool-group">
@@ -94,7 +105,7 @@
             </div>
         </div>
 
-        <!-- Aba Cabeçalho/Rodapé -->
+        <!-- ABA Cabeçalho/Rodapé -->
         <div id="headerfooter-tools" class="toolbar-container hidden">
             <div class="toolbar">
                 <div class="tool-group">
@@ -125,7 +136,7 @@
     </div>
 
     <div class="status-bar">
-        <div class="status-left"><span><i class="far fa-file-alt"></i> OS UNIVERSE Doc Word</span></div>
+        <div class="status-left"><span><i class="far fa-file-alt"></i> OS UNIVERSE Word</span></div>
         <div class="status-right"></div>
     </div>
 </div>
