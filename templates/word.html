@@ -61,7 +61,7 @@
                     <button class="tool-btn" id="underlineBtn"><i class="fas fa-underline"></i></button>
                     <input type="color" id="fontColor" value="#000000">
                 </div>
-                <!-- Grupo Parágrafo -->
+                <!-- Grupo Parágrafo (alinhamento, listas) -->
                 <div class="tool-group">
                     <span class="tool-group-label"><i class="fas fa-align-left"></i> Parágrafo</span>
                     <button class="tool-btn" id="alignLeftBtn"><i class="fas fa-align-left"></i></button>
@@ -74,7 +74,15 @@
                     <button class="tool-btn" id="indentBtn"><i class="fas fa-indent"></i></button>
                     <button class="tool-btn" id="outdentBtn"><i class="fas fa-outdent"></i></button>
                 </div>
-                <!-- NOVO GRUPO: Estilos (Normal, Sem Espaçamento, Título 1, Título 2) -->
+                <!-- Grupo Recuos e Margens (novo) -->
+                <div class="tool-group">
+                    <span class="tool-group-label"><i class="fas fa-indent"></i> Recuos/Margens</span>
+                    <button class="tool-btn style-btn" id="indent125">Parágrafo ABNT (1,25 cm)</button>
+                    <button class="tool-btn style-btn" id="indent15">Parágrafo 1,5 cm</button>
+                    <button class="tool-btn style-btn" id="citaçãoLonga">Citação Longa (4 cm)</button>
+                    <button class="tool-btn style-btn" id="margensPadrao">Margens Padrão (3/2 cm)</button>
+                </div>
+                <!-- Grupo Estilos (Normal, Sem Espaçamento, Título 1, Título 2) -->
                 <div class="tool-group">
                     <span class="tool-group-label"><i class="fas fa-palette"></i> Estilos</span>
                     <button class="tool-btn style-btn" id="styleNormal">Normal</button>
@@ -99,7 +107,7 @@
             </div>
         </div>
 
-        <!-- ABA Inserir (mantida) -->
+        <!-- ABA Inserir -->
         <div id="insert-tools" class="toolbar-container hidden">
             <div class="toolbar">
                 <div class="tool-group">
@@ -115,7 +123,7 @@
             </div>
         </div>
 
-        <!-- ABA Cabeçalho/Rodapé (mantida) -->
+        <!-- ABA Cabeçalho/Rodapé -->
         <div id="headerfooter-tools" class="toolbar-container hidden">
             <div class="toolbar">
                 <div class="tool-group">
@@ -130,7 +138,7 @@
     <!-- RÉGUA HORIZONTAL -->
     <div class="ruler-horizontal-container">
         <div class="ruler-horizontal" id="rulerHor"></div>
-        <div class="ruler-label">centímetros</div>
+        <div class="ruler-label">centímetros (valores ABNT: 1,25 | 1,5 | 4 etc)</div>
     </div>
 
     <!-- ÁREA DO DOCUMENTO -->

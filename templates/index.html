@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-<meta charset="UTF-8">
-<title>OS UNIVERSE</title>
-
-<link rel="stylesheet" href="/static/css/style.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS UNIVERSE - Ligar Computador</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
-
 <body class="power-off">
-
-<div class="power-container">
-
-<button onclick="ligar()" class="power-btn">
-Ligar Computador
-</button>
-
-</div>
-
-<script src="/static/js/main.js"></script>
-
+    <div class="power-container">
+        <div class="computer-icon">
+            <div class="screen"></div>
+            <div class="base"></div>
+        </div>
+        <button onclick="ligar()" class="power-btn">
+            <i class="fas fa-power-off"></i> Ligar Computador
+        </button>
+        <p class="info-text">Clique no botão para iniciar o sistema</p>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="/static/js/main.js"></script>
 </body>
-
 </html>
