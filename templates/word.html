@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Microsoft Word - OS UNIVERSE</title>
+    <title>Doc Word - OS UNIVERSE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/static/css/word.css">
     <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<!-- No <head> ou antes do fechamento do </body> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 </head>
 <body>
 <div class="word-app">
-    <!-- RIBBON -->
     <div class="ribbon">
         <div class="tabs">
-            <!-- Menu Arquivo -->
             <div class="file-menu tab-btn" id="fileMenuBtn">
                 <i class="fas fa-file-alt"></i> Arquivo
                 <div id="fileDropdown" class="file-dropdown">
@@ -74,7 +71,9 @@
                     <button class="tool-btn" id="outdentBtn"><i class="fas fa-outdent"></i></button>
                 </div>
                 <div class="tool-group">
-                    <button class="tool-btn" id="clearFormatBtn"><i class="fas fa-undo-alt"></i> Limpar</button>
+                    <span class="tool-group-label"><i class="fas fa-eraser"></i> Limpeza</span>
+                    <button class="tool-btn" id="clearFormatBtn" title="Remover formatação direta"><i class="fas fa-undo-alt"></i> Limpar</button>
+                    <button class="tool-btn" id="normalizeBtn" title="Normalizar texto: remove formatação, macros, estilos externos"><i class="fas fa-broom"></i> Normalizar</button>
                 </div>
             </div>
         </div>
@@ -113,7 +112,7 @@
         <div class="ruler-label">centímetros</div>
     </div>
 
-    <!-- ÁREA DO DOCUMENTO COM RÉGUA VERTICAL -->
+    <!-- ÁREA DO DOCUMENTO -->
     <div class="document-area">
         <div class="vertical-ruler" id="verticalRuler">
             <div class="vertical-scale" id="verticalScale"></div>
@@ -126,12 +125,11 @@
     </div>
 
     <div class="status-bar">
-        <div class="status-left"><span><i class="far fa-file-alt"></i> OS UNIVERSE Word</span></div>
+        <div class="status-left"><span><i class="far fa-file-alt"></i> OS UNIVERSE Doc Word</span></div>
         <div class="status-right"></div>
     </div>
 </div>
 
-<!-- Input oculto para abrir arquivos -->
 <input type="file" id="fileOpenInput" style="display:none" accept=".txt,.doc,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
 
 <script src="/static/js/word.js"></script>
