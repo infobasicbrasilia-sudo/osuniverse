@@ -14,7 +14,91 @@
     let rulerWidth = 0;
     let pxPerCm = 0;
     
-    // ========== HELPERS: GARANTIR PARÁGRAFOS ==========
+    // ========== HISTÓRICO COM DEBOUNCE ==========
+    let history = [];
+    let historyIndex = -1;
+    let ignoreNextChange = false;
+    let changeTimeout = null;
+    
+    function captureState() {
+        return {
+            pagesHtml: pages.map(p => p.innerHTML),
+            headerHtml: globalHeader.innerHTML,
+            footerHtml: globalFooter.innerHTML,
+            currentPageIndex: currentPageIndex
+        };
+    }
+    
+    function restoreState(state) {
+        ignoreNextChange = true;
+        while (pagesContainer.firstChild) pagesContainer.removeChild(pagesContainer.firstChild);
+        pages = [];
+        state.pagesHtml.forEach(html => {
+            const page = createPage(html);
+            pages.push(page);
+        });
+        globalHeader.innerHTML = state.headerHtml;
+        globalFooter.innerHTML = state.footerHtml;
+        currentPageIndex = state.currentPageIndex;
+        pages.forEach(page => attachPageEvents(page));
+        updateMarkersFromParagraph();
+        ignoreNextChange = false;
+    }
+    
+    function pushState() {
+        if (ignoreNextChange) return;
+        if (historyIndex < history.length - 1) {
+            history = history.slice(0, historyIndex + 1);
+        }
+        const newState = captureState();
+        history.push(newState);
+        historyIndex++;
+        if (history.length > 50) {
+            history.shift();
+            historyIndex--;
+        }
+    }
+    
+    function debouncedPushState() {
+        if (ignoreNextChange) return;
+        if (changeTimeout) clearTimeout(changeTimeout);
+        changeTimeout = setTimeout(() => {
+            pushState();
+            changeTimeout = null;
+        }, 300);
+    }
+    
+    function undo() {
+        if (historyIndex > 0) {
+            historyIndex--;
+            restoreState(history[historyIndex]);
+        } else {
+            alert("Nada para desfazer");
+        }
+    }
+    
+    function redo() {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            restoreState(history[historyIndex]);
+        } else {
+            alert("Nada para refazer");
+        }
+    }
+    
+    function onContentChange() {
+        debouncedPushState();
+    }
+    
+    // ========== HELPER: ALTURA A4 ==========
+    function applyA4Height(pageElement) {
+        // 29.7 cm = 1122.66px (1cm ≈ 37.8px)
+        pageElement.style.height = (29.7 * 37.8) + 'px';
+        pageElement.style.overflowY = 'auto';
+        pageElement.style.backgroundColor = 'white';
+    }
+    
+    // ========== GARANTIR PARÁGRAFOS ==========
     function ensureParagraphs(html) {
         if (!html) return '<p><br></p>';
         if (!/<(p|div|h[1-6]|blockquote|pre)>/i.test(html)) {
@@ -53,6 +137,7 @@
     function applyNormalizeToCurrentPage() {
         const activePage = pages[currentPageIndex];
         if (!activePage) return;
+        pushState();
         const originalHtml = activePage.innerHTML;
         const normalizedHtml = normalizeText(originalHtml);
         activePage.innerHTML = normalizedHtml;
@@ -60,10 +145,11 @@
         alert('Texto normalizado: formatação externa e macros removidos.');
     }
     
-    // ========== GERENCIAMENTO DE PÁGINAS ==========
+    // ========== CRIAÇÃO DE PÁGINAS ==========
     function createPage(contentHtml = '') {
         const pageDiv = document.createElement('div');
         pageDiv.className = 'page';
+        applyA4Height(pageDiv);
         const pageContent = document.createElement('div');
         pageContent.className = 'page-content';
         pageContent.contentEditable = 'true';
@@ -80,12 +166,19 @@
             currentPageIndex = pages.indexOf(page);
             updateMarkersFromParagraph();
         });
-        page.addEventListener('keyup', updateMarkersFromParagraph);
-        page.addEventListener('input', updateMarkersFromParagraph);
+        page.addEventListener('keyup', () => {
+            onContentChange();
+            updateMarkersFromParagraph();
+        });
+        page.addEventListener('input', () => {
+            onContentChange();
+            updateMarkersFromParagraph();
+        });
         page.addEventListener('paste', (e) => {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
             const formatted = ensureParagraphs(text.replace(/\n/g, '<br>'));
+            pushState();
             document.execCommand('insertHTML', false, formatted);
             updateMarkersFromParagraph();
         });
@@ -101,10 +194,11 @@
             <p><br></p>
         `);
         currentPageIndex = 0;
+        pushState();
         updateMarkersFromParagraph();
     }
     
-    // ========== RÉGUA HORIZONTAL ==========
+    // ========== RÉGUA HORIZONTAL (com marcas ABNT) ==========
     function drawRuler() {
         if (!rulerHor) return;
         rulerWidth = rulerHor.clientWidth;
@@ -117,26 +211,33 @@
         canvas.style.height = '100%';
         rulerHor.appendChild(canvas);
         
-        for (let cm = 0; cm <= maxCm; cm += 0.5) {
+        for (let cm = 0; cm <= maxCm; cm += 0.25) {
             const pos = cm * pxPerCm;
-            const isMajor = (cm % 1 === 0);
+            const isMajor = (Math.abs(cm - Math.round(cm)) < 0.01) ||
+                            (Math.abs(cm - 1.25) < 0.01) ||
+                            (Math.abs(cm - 1.5) < 0.01) ||
+                            (Math.abs(cm - 4.0) < 0.01);
+            const isAbnt = (Math.abs(cm - 1.25) < 0.01) || (Math.abs(cm - 1.5) < 0.01) || (Math.abs(cm - 4.0) < 0.01);
             const mark = document.createElement('div');
             mark.style.position = 'absolute';
             mark.style.bottom = '0';
             mark.style.left = pos + 'px';
             mark.style.width = isMajor ? '2px' : '1px';
-            mark.style.height = isMajor ? '16px' : '8px';
-            mark.style.backgroundColor = '#8a8a8a';
+            mark.style.height = isMajor ? (isAbnt ? '20px' : '16px') : '8px';
+            mark.style.backgroundColor = isAbnt ? '#e67e22' : '#8a8a8a';
             canvas.appendChild(mark);
             if (isMajor) {
                 const num = document.createElement('div');
                 num.style.position = 'absolute';
-                num.style.bottom = '18px';
+                num.style.bottom = '20px';
                 num.style.left = pos + 'px';
                 num.style.transform = 'translateX(-50%)';
                 num.style.fontSize = '9px';
-                num.style.color = '#333';
-                num.innerText = cm;
+                num.style.color = isAbnt ? '#e67e22' : '#333';
+                num.style.fontWeight = isAbnt ? 'bold' : 'normal';
+                let valor = cm;
+                if (Math.abs(cm - Math.round(cm)) < 0.01) valor = Math.round(cm);
+                num.innerText = valor;
                 canvas.appendChild(num);
             }
         }
@@ -197,7 +298,7 @@
         if (type === 'first') p.style.textIndent = cmToPx + 'px';
         else if (type === 'left') p.style.marginLeft = cmToPx + 'px';
         else if (type === 'right') p.style.marginRight = cmToPx + 'px';
-        setTimeout(() => updateMarkersFromParagraph(), 10);
+        updateMarkersFromParagraph();
     }
     
     function updateMarkerPosition(marker, cmValue, type) {
@@ -208,13 +309,18 @@
     }
     
     function makeDraggable(marker, type) {
-        let dragging = false, startX, startCm;
+        let dragging = false;
+        let startX, startCm;
+        let stateAtDragStart = null;
+        
         marker.addEventListener('mousedown', (e) => {
             e.preventDefault();
             dragging = true;
             startX = e.clientX;
             startCm = getCurrentCm(type);
+            stateAtDragStart = captureState();
             document.body.style.cursor = 'ew-resize';
+            
             const onMouseMove = (moveEvent) => {
                 if (!dragging) return;
                 let deltaX = moveEvent.clientX - startX;
@@ -225,8 +331,19 @@
                 applyIndent(type, newCm);
                 updateMarkerPosition(marker, newCm, type);
             };
+            
             const onMouseUp = () => {
-                dragging = false;
+                if (dragging) {
+                    dragging = false;
+                    const finalState = captureState();
+                    if (JSON.stringify(stateAtDragStart) !== JSON.stringify(finalState)) {
+                        ignoreNextChange = true;
+                        history.push(finalState);
+                        historyIndex++;
+                        if (history.length > 50) { history.shift(); historyIndex--; }
+                        ignoreNextChange = false;
+                    }
+                }
                 document.body.style.cursor = '';
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
@@ -277,25 +394,46 @@
     function exec(command, value = null) {
         const activePage = pages[currentPageIndex];
         if (!activePage) return;
+        pushState();
         activePage.focus();
         document.execCommand(command, false, value);
         activePage.focus();
         updateMarkersFromParagraph();
     }
     
-    function undo() {
-        document.execCommand('undo');
-        updateMarkersFromParagraph();
-    }
-    function redo() {
-        document.execCommand('redo');
-        updateMarkersFromParagraph();
+    // ========== RECUOS RÁPIDOS E MARGENS ==========
+    function applyParagraphIndent(cm) {
+        const p = getParagraphAtCursor();
+        if (p) {
+            pushState();
+            p.style.textIndent = (cm * 37.8) + 'px';
+            updateMarkersFromParagraph();
+        }
     }
     
-    // ========== ESTILOS RÁPIDOS (Normal, Sem Espaçamento, Título 1, Título 2) ==========
+    function applyLeftMargin(cm) {
+        const p = getParagraphAtCursor();
+        if (p) {
+            pushState();
+            p.style.marginLeft = (cm * 37.8) + 'px';
+            updateMarkersFromParagraph();
+        }
+    }
+    
+    function applyDocumentMargins(leftCm, rightCm) {
+        pushState();
+        pages.forEach(page => {
+            page.style.marginLeft = (leftCm * 37.8) + 'px';
+            page.style.marginRight = (rightCm * 37.8) + 'px';
+        });
+        updateMarkersFromParagraph();
+        alert(`Margens do documento definidas: esquerda ${leftCm} cm, direita ${rightCm} cm.`);
+    }
+    
     function applyStyle(styleName) {
         const p = getParagraphAtCursor();
         if (!p) return;
+        pushState();
         switch(styleName) {
             case 'Normal':
                 p.style.fontSize = '12pt';
@@ -329,7 +467,7 @@
         updateMarkersFromParagraph();
     }
     
-    // Vincular botões da interface
+    // ========== VINCULAR BOTÕES ==========
     document.getElementById('boldBtn')?.addEventListener('click', () => exec('bold'));
     document.getElementById('italicBtn')?.addEventListener('click', () => exec('italic'));
     document.getElementById('underlineBtn')?.addEventListener('click', () => exec('underline'));
@@ -352,6 +490,10 @@
     document.getElementById('styleNoSpacing')?.addEventListener('click', () => applyStyle('SemEspacamento'));
     document.getElementById('styleTitle1')?.addEventListener('click', () => applyStyle('Titulo1'));
     document.getElementById('styleTitle2')?.addEventListener('click', () => applyStyle('Titulo2'));
+    document.getElementById('indent125')?.addEventListener('click', () => applyParagraphIndent(1.25));
+    document.getElementById('indent15')?.addEventListener('click', () => applyParagraphIndent(1.5));
+    document.getElementById('citaçãoLonga')?.addEventListener('click', () => applyLeftMargin(4.0));
+    document.getElementById('margensPadrao')?.addEventListener('click', () => applyDocumentMargins(3.0, 2.0));
     
     document.getElementById('insertImageBtn')?.addEventListener('click', () => {
         let url = prompt("URL da imagem:");
@@ -367,7 +509,7 @@
                 for(let j=0;j<parseInt(cols);j++) html += '<td>&nbsp;</td>';
                 html += '</tr>';
             }
-            html += '</table><br>';
+            html += '</td><br>';
             exec('insertHTML', html);
         }
     });
@@ -384,10 +526,23 @@
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();
+            pushState();
             const newPage = createPage('<p><br></p>');
             currentPageIndex = pages.length - 1;
             newPage.focus();
             updateMarkersFromParagraph();
+        }
+        if (e.ctrlKey && e.key === 'z') {
+            e.preventDefault();
+            undo();
+        }
+        if (e.ctrlKey && e.key === 'y') {
+            e.preventDefault();
+            redo();
+        }
+        if (e.ctrlKey && e.shiftKey && e.key === 'Z') {
+            e.preventDefault();
+            redo();
         }
     });
     
@@ -454,13 +609,16 @@
     // ========== NOVO, ABRIR, IMPRIMIR ==========
     function newDocument() {
         if (confirm("Criar um novo documento? Todo o conteúdo não salvo será perdido.")) {
-            pagesContainer.innerHTML = '';
+            while (pagesContainer.firstChild) pagesContainer.removeChild(pagesContainer.firstChild);
             pages = [];
             const newPage = createPage('<p><br></p>');
             currentPageIndex = 0;
             globalHeader.innerText = '';
             globalFooter.innerText = '';
             applyPlaceholders();
+            history = [];
+            historyIndex = -1;
+            pushState();
             updateMarkersFromParagraph();
         }
     }
@@ -483,11 +641,14 @@
                 content = content.replace(/\n/g, '<br>');
                 content = ensureParagraphs(content);
                 if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
-                    pages.forEach(p => p.remove());
+                    while (pagesContainer.firstChild) pagesContainer.removeChild(pagesContainer.firstChild);
                     pages = [];
                     const newPage = createPage(content);
                     currentPageIndex = 0;
                     applyPlaceholders();
+                    history = [];
+                    historyIndex = -1;
+                    pushState();
                     updateMarkersFromParagraph();
                 }
             };
@@ -500,11 +661,14 @@
                 let htmlContent = result.value;
                 htmlContent = ensureParagraphs(htmlContent);
                 if (confirm('O conteúdo atual será substituído. Deseja continuar?')) {
-                    pages.forEach(p => p.remove());
+                    while (pagesContainer.firstChild) pagesContainer.removeChild(pagesContainer.firstChild);
                     pages = [];
                     const newPage = createPage(htmlContent);
                     currentPageIndex = 0;
                     applyPlaceholders();
+                    history = [];
+                    historyIndex = -1;
+                    pushState();
                     updateMarkersFromParagraph();
                 }
             } catch (error) {
@@ -526,7 +690,7 @@
         const style = `
             <style>
                 body { font-family: Calibri, Arial, sans-serif; margin: 2cm; line-height: 1.4; }
-                .page { margin-bottom: 1.5cm; page-break-after: always; }
+                .page { margin-bottom: 1.5cm; page-break-after: always; height: 29.7cm; overflow-y: auto; }
                 .page:last-child { page-break-after: auto; }
                 table { border-collapse: collapse; width: 100%; }
                 td, th { border: 1px solid #aaa; padding: 5px; }

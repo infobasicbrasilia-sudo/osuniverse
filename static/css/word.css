@@ -145,7 +145,6 @@ body {
 .tool-btn:hover {
     background: #eef2f7;
 }
-/* Estilos para botões de estilo (Normal, Sem Espaçamento, etc.) */
 .style-btn {
     width: auto;
     padding: 0 12px;
@@ -324,7 +323,7 @@ select, input[type="color"] {
 .footer-section {
     margin-top: 10px;
 }
-/* PÁGINAS */
+/* PÁGINAS (A4) */
 #pagesContainer {
     flex: 1;
 }
@@ -334,6 +333,7 @@ select, input[type="color"] {
     margin-bottom: 20px;
     page-break-after: always;
     break-inside: avoid;
+    /* Altura será definida inline pelo JS (29.7cm) */
 }
 .page:last-child {
     margin-bottom: 0;
@@ -354,4 +354,71 @@ select, input[type="color"] {
     font-size: 12px;
     display: flex;
     justify-content: space-between;
+}
+
+/* ========== LAYOUT ESPECIAL PARA ABA INSERIR ========== */
+#insert-tools .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+#insert-tools .tool-group {
+    flex-direction: column;
+    align-items: flex-start;
+    background: #fefefe;
+    padding: 12px;
+    border-radius: 12px;
+    min-width: 140px;
+}
+#insert-tools .tool-group-label {
+    margin-bottom: 8px;
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid #ddd;
+    width: 100%;
+}
+#insert-tools .tool-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+    gap: 10px;
+}
+#insert-tools .tool-btn i {
+    width: 24px;
+}
+
+/* ========== LAYOUT ESPECIAL PARA ABA CABEÇALHO/RODAPÉ ========== */
+#headerfooter-tools .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+#headerfooter-tools .tool-group {
+    flex-direction: column;
+    align-items: flex-start;
+    background: #fefefe;
+    padding: 12px;
+    border-radius: 12px;
+}
+#headerfooter-tools .tool-group-label {
+    margin-bottom: 8px;
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid #ddd;
+    width: 100%;
+}
+#headerfooter-tools .tool-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 14px;
+    gap: 10px;
+}
+#headerfooter-tools .tool-btn i {
+    width: 24px;
 }
