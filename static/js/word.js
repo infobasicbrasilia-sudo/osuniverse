@@ -17,7 +17,6 @@
     // ========== HELPERS: GARANTIR PARÁGRAFOS ==========
     function ensureParagraphs(html) {
         if (!html) return '<p><br></p>';
-        // Se não houver tag de bloco, envolve em <p>
         if (!/<(p|div|h[1-6]|blockquote|pre)>/i.test(html)) {
             let text = html.trim();
             if (text === '') return '<p><br></p>';
@@ -83,7 +82,6 @@
         });
         page.addEventListener('keyup', updateMarkersFromParagraph);
         page.addEventListener('input', updateMarkersFromParagraph);
-        // Garantir que ao colar o texto seja convertido em parágrafos
         page.addEventListener('paste', (e) => {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -167,7 +165,6 @@
         return marker;
     }
     
-    // Função melhorada para obter o parágrafo atual (mesmo se dentro de strong/span)
     function getParagraphAtCursor() {
         const activePage = pages[currentPageIndex];
         if (!activePage) return null;
@@ -175,7 +172,6 @@
         if (!sel.rangeCount) return null;
         let node = sel.getRangeAt(0).startContainer;
         while (node && node !== activePage && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
-        // Sobe até encontrar um elemento de bloco (P, DIV, etc)
         while (node && node !== activePage && !(node.tagName === 'P' || node.tagName === 'DIV' || node.tagName === 'H1' || node.tagName === 'H2')) {
             node = node.parentNode;
         }
@@ -201,7 +197,6 @@
         if (type === 'first') p.style.textIndent = cmToPx + 'px';
         else if (type === 'left') p.style.marginLeft = cmToPx + 'px';
         else if (type === 'right') p.style.marginRight = cmToPx + 'px';
-        // Pequeno delay para garantir renderização
         setTimeout(() => updateMarkersFromParagraph(), 10);
     }
     
@@ -288,7 +283,6 @@
         updateMarkersFromParagraph();
     }
     
-    // Comandos de desfazer/refazer
     function undo() {
         document.execCommand('undo');
         updateMarkersFromParagraph();
@@ -298,7 +292,44 @@
         updateMarkersFromParagraph();
     }
     
-    // Vincular botões da aba Página Inicial
+    // ========== ESTILOS RÁPIDOS (Normal, Sem Espaçamento, Título 1, Título 2) ==========
+    function applyStyle(styleName) {
+        const p = getParagraphAtCursor();
+        if (!p) return;
+        switch(styleName) {
+            case 'Normal':
+                p.style.fontSize = '12pt';
+                p.style.fontFamily = 'Calibri';
+                p.style.fontWeight = 'normal';
+                p.style.fontStyle = 'normal';
+                p.style.textDecoration = 'none';
+                p.style.margin = '0 0 0 0';
+                p.style.lineHeight = '1.5';
+                break;
+            case 'SemEspacamento':
+                p.style.margin = '0';
+                p.style.padding = '0';
+                p.style.lineHeight = '1.2';
+                break;
+            case 'Titulo1':
+                p.style.fontSize = '24pt';
+                p.style.fontWeight = 'bold';
+                p.style.fontFamily = 'Calibri';
+                p.style.margin = '12pt 0 6pt 0';
+                p.style.color = '#2c3e50';
+                break;
+            case 'Titulo2':
+                p.style.fontSize = '18pt';
+                p.style.fontWeight = 'bold';
+                p.style.fontFamily = 'Calibri';
+                p.style.margin = '10pt 0 4pt 0';
+                p.style.color = '#34495e';
+                break;
+        }
+        updateMarkersFromParagraph();
+    }
+    
+    // Vincular botões da interface
     document.getElementById('boldBtn')?.addEventListener('click', () => exec('bold'));
     document.getElementById('italicBtn')?.addEventListener('click', () => exec('italic'));
     document.getElementById('underlineBtn')?.addEventListener('click', () => exec('underline'));
@@ -313,14 +344,15 @@
     document.getElementById('numberedListBtn')?.addEventListener('click', () => exec('insertOrderedList'));
     document.getElementById('indentBtn')?.addEventListener('click', () => exec('indent'));
     document.getElementById('outdentBtn')?.addEventListener('click', () => exec('outdent'));
-    
-    // Botões da aba Editar
     document.getElementById('undoBtn')?.addEventListener('click', undo);
     document.getElementById('redoBtn')?.addEventListener('click', redo);
     document.getElementById('clearFormatBtn')?.addEventListener('click', () => exec('removeFormat'));
     document.getElementById('normalizeBtn')?.addEventListener('click', applyNormalizeToCurrentPage);
+    document.getElementById('styleNormal')?.addEventListener('click', () => applyStyle('Normal'));
+    document.getElementById('styleNoSpacing')?.addEventListener('click', () => applyStyle('SemEspacamento'));
+    document.getElementById('styleTitle1')?.addEventListener('click', () => applyStyle('Titulo1'));
+    document.getElementById('styleTitle2')?.addEventListener('click', () => applyStyle('Titulo2'));
     
-    // Aba Inserir
     document.getElementById('insertImageBtn')?.addEventListener('click', () => {
         let url = prompt("URL da imagem:");
         if(url) exec('insertImage', url);
@@ -348,7 +380,7 @@
         if(sym) exec('insertText', sym);
     });
     
-    // Quebra de página
+    // ========== QUEBRA DE PÁGINA ==========
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
             e.preventDefault();

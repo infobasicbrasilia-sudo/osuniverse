@@ -138,9 +138,20 @@ body {
     font-size: 18px;
     color: #2c3e4e;
     transition: 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .tool-btn:hover {
     background: #eef2f7;
+}
+/* Estilos para botões de estilo (Normal, Sem Espaçamento, etc.) */
+.style-btn {
+    width: auto;
+    padding: 0 12px;
+    font-size: 13px;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 500;
 }
 select, input[type="color"] {
     height: 34px;
@@ -158,6 +169,39 @@ select, input[type="color"] {
 }
 .hidden {
     display: none;
+}
+/* Layout vertical para a aba Editar */
+.toolbar-vertical {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+}
+.tool-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #fefefe;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e6ea;
+}
+.tool-btn-vertical {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2c3e4e;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.1s;
+    width: 100%;
+}
+.tool-btn-vertical:hover {
+    background: #eef2f7;
 }
 /* RÉGUA HORIZONTAL */
 .ruler-horizontal-container {
@@ -310,16 +354,4 @@ select, input[type="color"] {
     font-size: 12px;
     display: flex;
     justify-content: space-between;
-}
-/* Estilos para conteúdo importado de .docx */
-.word-import p, .word-import h1, .word-import h2, .word-import h3 {
-    margin: 0.5rem 0;
-}
-.word-import table {
-    border-collapse: collapse;
-    width: 100%;
-}
-.word-import td, .word-import th {
-    border: 1px solid #aaa;
-    padding: 4px;
 }
